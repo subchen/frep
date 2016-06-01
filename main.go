@@ -43,16 +43,23 @@ func (s *StringList) String() string {
 }
 
 func executeTemplate(t *template.Template, file string, ctx interface{}, stdout bool, overwrite bool) {
-	tmpl, err := t.ParseFiles(file)
+	filePair := strings.SplitN(file, ":", 2)
+	srcFile := filePair[0]
+	destFile := ""
+	if len(filePair) == 2 {
+		destFile = filePair[1]
+	} else {
+		pos := strings.LastIndex(srcFile, ".")
+		destFile = srcFile[0:pos]
+	}
+
+	tmpl, err := t.ParseFiles(srcFile)
 	if err != nil {
 		log.Fatalf("unable to parse template: %s", err)
 	}
 
 	dest := os.Stdout
 	if !stdout {
-		pos := strings.LastIndex(file, ".")
-		destFile := file[0:pos]
-
 		if !overwrite {
 			if _, err := os.Stat(destFile); err == nil {
 				log.Fatalf("cannot overwrite dest file: %s", destFile)
@@ -66,7 +73,7 @@ func executeTemplate(t *template.Template, file string, ctx interface{}, stdout 
 		defer dest.Close()
 	}
 
-	err = tmpl.ExecuteTemplate(dest, filepath.Base(file), ctx)
+	err = tmpl.ExecuteTemplate(dest, filepath.Base(srcFile), ctx)
 	if err != nil {
 		log.Fatalf("template error: %s\n", err)
 	}
@@ -82,7 +89,7 @@ func main() {
 		versionFlag   bool
 	)
 
-	flag.Var(&templatesFlag, "t", "Template (/template:/dest). can be passed multiple times")
+	flag.Var(&templatesFlag, "template", "Template (/template:/dest). can be passed multiple times")
 	flag.StringVar(&delimsFlag, "delims", "", `Template tag delimiters. default "{{:}}" `)
 	flag.BoolVar(&stdoutFlag, "stdout", false, "Output to console instead of file")
 	flag.BoolVar(&overwriteFlag, "overwrite", false, "Overwrite file without errors if dest file exists")
