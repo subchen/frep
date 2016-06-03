@@ -1,6 +1,24 @@
-# go-template-file-replace
+# frep
 
 A template file replace tool written golang
+
+```
+Usage of repl:
+  -t, --template source[:dest]
+    	Template source and dest files. can be passed multiple times
+  --delims left:after
+    	Template tag delimiters. default "{{:}}"
+  --overwrite
+    	Overwrite file without errors if dest file exists
+  --stdout
+    	Output to console instead of file
+  -e, --env name=value
+    	Environment name=value pair, can be passed multiple times
+  --version
+    	Show version
+  -h, --help
+    	Show help
+```
 
 # Command-line Options
 
