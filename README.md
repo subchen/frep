@@ -60,7 +60,6 @@ nginx.conf.in
 ```
 server {
     listen {{.port}} default_server;
-    listen [::]:{{.port}} default_server ipv6only=on;
 
     root {{default .webroot "/usr/share/nginx/html"}};
     index index.html index.htm;
