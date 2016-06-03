@@ -52,8 +52,8 @@ PATH = {{ .PATH }}
 
 There are a few built in functions as well:
 
-* `default $var $default` - Returns a default value for one that does not exist. `{{ default .Env.VERSION "0.1.2" }}`
-* `split $string $sep` - Splits a string into an array using a separator string. Alias for strings.Split. `{{ split .Env.PATH ":" }}`
+* `default $var $default` - Returns a default value for one that does not exist. `{{ default .VERSION "0.1.2" }}`
+* `split $string $sep` - Splits a string into an array using a separator string. Alias for strings.Split. `{{ split .PATH ":" }}`
 
 nginx.conf.in
 
