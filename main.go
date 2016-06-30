@@ -1,8 +1,11 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
+	"github.com/go-yaml/yaml"
+	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -13,8 +16,8 @@ import (
 const VERSION = "1.0.0"
 
 // template context
-func newContext() map[string]string {
-	ctx := make(map[string]string)
+func newContext() map[string]interface{} {
+	ctx := make(map[string]interface{})
 	for _, env := range os.Environ() {
 		kv := strings.SplitN(env, "=", 2)
 		ctx[kv[0]] = kv[1]
@@ -23,11 +26,11 @@ func newContext() map[string]string {
 }
 
 // template function
-func defaultValue(a, b interface{}) string {
+func defaultValue(a, b interface{}) interface{} {
 	if a != nil {
-		return a.(string)
+		return a
 	}
-	return b.(string)
+	return b
 }
 
 // flag Value
@@ -86,6 +89,8 @@ func main() {
 		stdoutFlag    bool
 		overwriteFlag bool
 		envsFlag      StringList
+		jsonenvFlag   string
+		loadenvFlag   string
 		versionFlag   bool
 	)
 
@@ -94,6 +99,8 @@ func main() {
 	flag.BoolVar(&stdoutFlag, "stdout", false, "Output to console instead of file")
 	flag.BoolVar(&overwriteFlag, "overwrite", false, "Overwrite file without errors if dest file exists")
 	flag.Var(&envsFlag, "e", "Environment name=value pair, can be passed multiple times")
+	flag.StringVar(&jsonenvFlag, "json", "", "load environment from json object")
+	flag.StringVar(&loadenvFlag, "load", "", "load environment from json file")
 	flag.BoolVar(&versionFlag, "version", false, "Show version")
 	flag.Parse()
 
@@ -120,6 +127,36 @@ func main() {
 	for _, env := range envsFlag {
 		kv := strings.SplitN(env, "=", 2)
 		ctx[kv[0]] = kv[1]
+	}
+
+	if jsonenvFlag != "" {
+		var obj map[string]interface{}
+		if err := json.Unmarshal([]byte(jsonenvFlag), &obj); err != nil {
+			log.Fatalf("bad json format: %s", jsonenvFlag)
+		}
+		for name, value := range obj {
+			ctx[name] = value
+		}
+	}
+
+	if loadenvFlag != "" {
+		if bytes, err := ioutil.ReadFile(loadenvFlag); err != nil {
+			log.Fatalf("cannot load file: %s", loadenvFlag)
+		} else {
+			var obj map[string]interface{}
+			if strings.HasSuffix(loadenvFlag, ".json") {
+				if err := json.Unmarshal(bytes, &obj); err != nil {
+					log.Fatalf("bad json format: %s", string(bytes))
+				}
+			} else if strings.HasSuffix(loadenvFlag, ".yaml") || strings.HasSuffix(loadenvFlag, ".yml") {
+				if err := yaml.Unmarshal(bytes, &obj); err != nil {
+					log.Fatalf("bad yaml format: %s", string(bytes))
+				}
+			}
+			for name, value := range obj {
+				ctx[name] = value
+			}
+		}
 	}
 
 	for _, file := range templatesFlag {
