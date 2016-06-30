@@ -14,6 +14,10 @@ Usage of repl:
     	Output to console instead of file
   -e, --env name=value
     	Environment name=value pair, can be passed multiple times
+  -json json
+        load environment from json string
+  -load file
+        load environment from json or yaml file
   --version
     	Show version
   -h, --help
@@ -52,6 +56,26 @@ Output multiple files
 
 ```
 frep -t nginx.conf.in -t redis.conf.in ...
+```
+
+Load from json string
+
+```
+frep -t nginx.conf.in -json '{"bind": "127.0.0.1", "port": 80, "servers": ["127.0.0.1:8081", "127.0.0.1:8082"]}'
+```
+
+Load from yaml file
+
+```
+cat > config.yaml << EOF
+bind: 127.0.0.1
+port: 80
+servers:
+    - 127.0.0.1:8081
+    - 127.0.0.1:8082
+EOF
+
+frep -t nginx.conf.in -load config.yaml
 ```
 
 If your file uses `{{` and `}}` as part of it's syntax, you can change the template escape characters using the -delims.
