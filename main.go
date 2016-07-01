@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -13,7 +12,7 @@ import (
 	"text/template"
 
 	"github.com/go-yaml/yaml"
-	//"github.com/subchen/goutils/cli"
+	"github.com/subchen/goutils/cli"
 )
 
 const VERSION = "1.0.0"
@@ -24,45 +23,83 @@ var (
 	BuildDate      string
 )
 
-// template context
-func newContext() map[string]interface{} {
-	ctx := make(map[string]interface{})
+// create template context
+func newTemplateVariables(ctx *cli.Context) map[string]interface{} {
+	// ENV
+	vars := make(map[string]interface{})
 	for _, env := range os.Environ() {
 		kv := strings.SplitN(env, "=", 2)
-		ctx[kv[0]] = kv[1]
+		vars[kv[0]] = kv[1]
 	}
-	return ctx
+
+	// --json
+	if jsonStr := ctx.String("--json"); jsonStr != "" {
+		var obj map[string]interface{}
+		if err := json.Unmarshal([]byte(jsonStr), &obj); err != nil {
+			log.Fatalf("bad json format: %s", jsonStr)
+		}
+		for k, v := range obj {
+			vars[k] = v
+		}
+	}
+
+	// --load
+	for _, file := range ctx.StringList("--load") {
+		if bytes, err := ioutil.ReadFile(file); err != nil {
+			log.Fatalf("cannot load file: %s", file)
+		} else {
+			var obj map[string]interface{}
+			if strings.HasSuffix(file, ".json") {
+				if err := json.Unmarshal(bytes, &obj); err != nil {
+					log.Fatalf("bad json format: %s", string(bytes))
+				}
+			} else if strings.HasSuffix(file, ".yaml") || strings.HasSuffix(file, ".yml") {
+				if err := yaml.Unmarshal(bytes, &obj); err != nil {
+					log.Fatalf("bad yaml format: %s", string(bytes))
+				}
+			} else {
+				log.Fatalf("bad file type: %s", file)
+			}
+
+			for k, v := range obj {
+				vars[k] = v
+			}
+		}
+	}
+
+	// --env
+	for _, env := range ctx.StringList("--env") {
+		kv := strings.SplitN(env, "=", 2)
+		vars[kv[0]] = kv[1]
+	}
+
+	return vars
 }
 
-// template function
+// builtin template function
 func defaultValue(a, b interface{}) interface{} {
-	if a != nil {
-		return a
+	if a == nil {
+		return b
 	}
-	return b
+	if s, ok := a.(string); ok && s == "" {
+		return b
+	}
+	return a
 }
 
-// flag Value
-type StringList []string
-
-func (s *StringList) Set(value string) error {
-	*s = append(*s, value)
-	return nil
-}
-
-func (s *StringList) String() string {
-	return strings.Join(*s, ",")
-}
-
-func executeTemplate(t *template.Template, file string, ctx interface{}, stdout bool, overwrite bool) {
+func templateExecute(t *template.Template, file string, ctx interface{}, testing bool, overwrite bool) {
 	filePair := strings.SplitN(file, ":", 2)
 	srcFile := filePair[0]
 	destFile := ""
+
 	if len(filePair) == 2 {
 		destFile = filePair[1]
 	} else {
-		pos := strings.LastIndex(srcFile, ".")
-		destFile = srcFile[0:pos]
+		if pos := strings.LastIndex(srcFile, "."); pos == -1 {
+			destFile = srcFile
+		} else {
+			destFile = srcFile[0:pos]
+		}
 	}
 
 	tmpl, err := t.ParseFiles(srcFile)
@@ -71,108 +108,69 @@ func executeTemplate(t *template.Template, file string, ctx interface{}, stdout 
 	}
 
 	dest := os.Stdout
-	if !stdout {
+	if !testing {
 		if !overwrite {
 			if _, err := os.Stat(destFile); err == nil {
-				log.Fatalf("cannot overwrite dest file: %s", destFile)
+				log.Fatalf("unable overwrite destination file: %s", destFile)
 			}
 		}
 
 		dest, err = os.Create(destFile)
 		if err != nil {
-			log.Fatalf("unable to create %s", err)
+			log.Fatalf("unable to create file: %s", err)
 		}
 		defer dest.Close()
 	}
 
 	err = tmpl.ExecuteTemplate(dest, filepath.Base(srcFile), ctx)
 	if err != nil {
-		log.Fatalf("template error: %s\n", err)
+		log.Fatalf("transform template error: %s\n", err)
 	}
 }
 
-func main() {
-	var (
-		templatesFlag StringList
-		delimsFlag    string
-		stdoutFlag    bool
-		overwriteFlag bool
-		envsFlag      StringList
-		jsonenvFlag   string
-		loadenvFlag   string
-		versionFlag   bool
-	)
-
-	flag.Var(&templatesFlag, "template", "Template (/template:/dest). can be passed multiple times")
-	flag.StringVar(&delimsFlag, "delims", "", `Template tag delimiters. default "{{:}}" `)
-	flag.BoolVar(&stdoutFlag, "stdout", false, "Output to console instead of file")
-	flag.BoolVar(&overwriteFlag, "overwrite", false, "Overwrite file without errors if dest file exists")
-	flag.Var(&envsFlag, "e", "Environment name=value pair, can be passed multiple times")
-	flag.StringVar(&jsonenvFlag, "json", "", "load environment from json object")
-	flag.StringVar(&loadenvFlag, "load", "", "load environment from json file")
-	flag.BoolVar(&versionFlag, "version", false, "Show version")
-	flag.Parse()
-
-	if versionFlag {
-		fmt.Printf("Version: %s-%s\n", VERSION, BuildVersion)
-		fmt.Printf("Go version: %s\n", runtime.Version())
-		fmt.Printf("Git commit: %s\n", BuildGitCommit)
-		fmt.Printf("Built: %s\n", BuildDate)
-		fmt.Printf("OS/Arch: %s-%s\n", runtime.GOOS, runtime.GOARCH)
-		return
-	}
-
+func cliExecute(ctx *cli.Context) {
 	funcMap := template.FuncMap{
 		"split":   strings.Split,
 		"default": defaultValue,
 	}
 
 	t := template.New("noname").Funcs(funcMap)
-	if delimsFlag != "" {
-		delims := strings.Split(delimsFlag, ":")
+	if delimsStr := ctx.String("--delims"); delimsStr != "" {
+		delims := strings.Split(delimsStr, ":")
 		if len(delims) != 2 {
-			log.Fatalf("bad delimiters argument: %s. expected \"left:right\"", delimsFlag)
+			log.Fatalf("bad delimiters argument: %s. expected \"left:right\"", delimsStr)
 		}
 		t = t.Delims(delims[0], delims[1])
 	}
 
-	ctx := newContext()
-	for _, env := range envsFlag {
-		kv := strings.SplitN(env, "=", 2)
-		ctx[kv[0]] = kv[1]
+	vars := newTemplateVariables(ctx)
+
+	for _, file := range ctx.Args() {
+		testing := ctx.Bool("--test")
+		overwrite := ctx.Bool("--overwrite")
+		templateExecute(t, file, vars, testing, overwrite)
+	}
+}
+
+func main() {
+	app := cli.NewApp("frep", "transform template file using environment, arguments, json/yaml files")
+
+	app.Flag("-e, --env", "Set variable name=value, can be passed multiple times").Multiple()
+	app.Flag("--test", "Test mode, output transform result to console").Bool()
+	app.Flag("--overwrite", "Overwrite if destination file exists").Bool()
+	app.Flag("--delims", `Template tag delimiters`).Default("{{:}}")
+	app.Flag("--json", "Load variables from json object").Placeholder("string")
+	app.Flag("--load", "Load variables from json/yaml files").Placeholder("file").Multiple()
+
+	app.Version = func() {
+		fmt.Printf("Version: %s-%s\n", VERSION, BuildVersion)
+		fmt.Printf("Go version: %s\n", runtime.Version())
+		fmt.Printf("Git commit: %s\n", BuildGitCommit)
+		fmt.Printf("Built: %s\n", BuildDate)
+		fmt.Printf("OS/Arch: %s-%s\n", runtime.GOOS, runtime.GOARCH)
 	}
 
-	if jsonenvFlag != "" {
-		var obj map[string]interface{}
-		if err := json.Unmarshal([]byte(jsonenvFlag), &obj); err != nil {
-			log.Fatalf("bad json format: %s", jsonenvFlag)
-		}
-		for name, value := range obj {
-			ctx[name] = value
-		}
-	}
+	app.Execute = cliExecute
 
-	if loadenvFlag != "" {
-		if bytes, err := ioutil.ReadFile(loadenvFlag); err != nil {
-			log.Fatalf("cannot load file: %s", loadenvFlag)
-		} else {
-			var obj map[string]interface{}
-			if strings.HasSuffix(loadenvFlag, ".json") {
-				if err := json.Unmarshal(bytes, &obj); err != nil {
-					log.Fatalf("bad json format: %s", string(bytes))
-				}
-			} else if strings.HasSuffix(loadenvFlag, ".yaml") || strings.HasSuffix(loadenvFlag, ".yml") {
-				if err := yaml.Unmarshal(bytes, &obj); err != nil {
-					log.Fatalf("bad yaml format: %s", string(bytes))
-				}
-			}
-			for name, value := range obj {
-				ctx[name] = value
-			}
-		}
-	}
-
-	for _, file := range templatesFlag {
-		executeTemplate(t, file, ctx, stdoutFlag, overwriteFlag)
-	}
+	app.Run()
 }
