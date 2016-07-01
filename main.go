@@ -4,16 +4,25 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/go-yaml/yaml"
 	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"text/template"
+
+	"github.com/go-yaml/yaml"
+	//"github.com/subchen/goutils/cli"
 )
 
 const VERSION = "1.0.0"
+
+var (
+	BuildVersion   string
+	BuildGitCommit string
+	BuildDate      string
+)
 
 // template context
 func newContext() map[string]interface{} {
@@ -105,7 +114,11 @@ func main() {
 	flag.Parse()
 
 	if versionFlag {
-		fmt.Println(VERSION)
+		fmt.Printf("Version: %s-%s\n", VERSION, BuildVersion)
+		fmt.Printf("Go version: %s\n", runtime.Version())
+		fmt.Printf("Git commit: %s\n", BuildGitCommit)
+		fmt.Printf("Built: %s\n", BuildDate)
+		fmt.Printf("OS/Arch: %s-%s\n", runtime.GOOS, runtime.GOARCH)
 		return
 	}
 
