@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -36,7 +35,7 @@ func newTemplateVariables(ctx *cli.Context) map[string]interface{} {
 	if jsonStr := ctx.String("--json"); jsonStr != "" {
 		var obj map[string]interface{}
 		if err := json.Unmarshal([]byte(jsonStr), &obj); err != nil {
-			log.Fatalf("bad json format: %s", jsonStr)
+			cli.Fatalf("fatal: bad json format: %s", jsonStr)
 		}
 		for k, v := range obj {
 			vars[k] = v
@@ -46,19 +45,19 @@ func newTemplateVariables(ctx *cli.Context) map[string]interface{} {
 	// --load
 	for _, file := range ctx.StringList("--load") {
 		if bytes, err := ioutil.ReadFile(file); err != nil {
-			log.Fatalf("cannot load file: %s", file)
+			cli.Fatalf("fatal: cannot load file: %s", file)
 		} else {
 			var obj map[string]interface{}
 			if strings.HasSuffix(file, ".json") {
 				if err := json.Unmarshal(bytes, &obj); err != nil {
-					log.Fatalf("bad json format: %s", string(bytes))
+					cli.Fatalf("fatal: bad json format: %s", string(bytes))
 				}
 			} else if strings.HasSuffix(file, ".yaml") || strings.HasSuffix(file, ".yml") {
 				if err := yaml.Unmarshal(bytes, &obj); err != nil {
-					log.Fatalf("bad yaml format: %s", string(bytes))
+					cli.Fatalf("fatal: bad yaml format: %s", string(bytes))
 				}
 			} else {
-				log.Fatalf("bad file type: %s", file)
+				cli.Fatalf("fatal: bad file type: %s", file)
 			}
 
 			for k, v := range obj {
@@ -104,27 +103,27 @@ func templateExecute(t *template.Template, file string, ctx interface{}, testing
 
 	tmpl, err := t.ParseFiles(srcFile)
 	if err != nil {
-		log.Fatalf("unable to parse template: %s", err)
+		cli.Fatalf("fatal: unable to parse template: %s", err)
 	}
 
 	dest := os.Stdout
 	if !testing {
 		if !overwrite {
 			if _, err := os.Stat(destFile); err == nil {
-				log.Fatalf("unable overwrite destination file: %s", destFile)
+				cli.Fatalf("fatal: unable overwrite destination file: %s", destFile)
 			}
 		}
 
 		dest, err = os.Create(destFile)
 		if err != nil {
-			log.Fatalf("unable to create file: %s", err)
+			cli.Fatalf("fatal: unable to create file: %s", err)
 		}
 		defer dest.Close()
 	}
 
 	err = tmpl.ExecuteTemplate(dest, filepath.Base(srcFile), ctx)
 	if err != nil {
-		log.Fatalf("transform template error: %s\n", err)
+		cli.Fatalf("fatal: transform template error: %s\n", err)
 	}
 }
 
@@ -138,7 +137,7 @@ func cliExecute(ctx *cli.Context) {
 	if delimsStr := ctx.String("--delims"); delimsStr != "" {
 		delims := strings.Split(delimsStr, ":")
 		if len(delims) != 2 {
-			log.Fatalf("bad delimiters argument: %s. expected \"left:right\"", delimsStr)
+			cli.Fatalf("fatal: bad delimiters argument: %s. expected \"left:right\"", delimsStr)
 		}
 		t = t.Delims(delims[0], delims[1])
 	}
@@ -153,22 +152,33 @@ func cliExecute(ctx *cli.Context) {
 }
 
 func main() {
-	app := cli.NewApp("frep", "transform template file using environment, arguments, json/yaml files")
+	app := cli.NewApp("frep", "Transform template file using environment, arguments, json/yaml files")
 
-	app.Flag("-e, --env", "Set variable name=value, can be passed multiple times").Multiple()
-	app.Flag("--test", "Test mode, output transform result to console").Bool()
-	app.Flag("--overwrite", "Overwrite if destination file exists").Bool()
-	app.Flag("--delims", `Template tag delimiters`).Default("{{:}}")
-	app.Flag("--json", "Load variables from json object").Placeholder("string")
-	app.Flag("--load", "Load variables from json/yaml files").Placeholder("file").Multiple()
+	app.Flag("-e, --env", "set variable name=value, can be passed multiple times").Multiple()
+	app.Flag("--json", "load variables from json object").Placeholder("string")
+	app.Flag("--load", "load variables from json/yaml files").Placeholder("file").Multiple()
+	app.Flag("--overwrite", "overwrite if destination file exists").Bool()
+	app.Flag("--test", "test mode, output transform result to console").Bool()
+	app.Flag("--delims", `template tag delimiters`).Default("{{:}}")
 
-	app.Version = func() {
-		fmt.Printf("Version: %s-%s\n", VERSION, BuildVersion)
-		fmt.Printf("Go version: %s\n", runtime.Version())
-		fmt.Printf("Git commit: %s\n", BuildGitCommit)
-		fmt.Printf("Built: %s\n", BuildDate)
-		fmt.Printf("OS/Arch: %s-%s\n", runtime.GOOS, runtime.GOARCH)
+	if BuildVersion == "" {
+		app.Version = VERSION
+	} else {
+		app.Version = func() {
+			fmt.Printf("Version: %s-%s\n", VERSION, BuildVersion)
+			fmt.Printf("Go version: %s\n", runtime.Version())
+			fmt.Printf("Git commit: %s\n", BuildGitCommit)
+			fmt.Printf("Built: %s\n", BuildDate)
+			fmt.Printf("OS/Arch: %s-%s\n", runtime.GOOS, runtime.GOARCH)
+		}
 	}
+
+	app.Usage = func(string) {
+		fmt.Println("Usage: frep [OPTIONS] input-file:[output-file] ...")
+		fmt.Println("   or: frep [ --version | --help ]")
+	}
+
+    app.AllowArgumentCount(1, -1)
 
 	app.Execute = cliExecute
 
