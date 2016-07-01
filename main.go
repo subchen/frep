@@ -178,7 +178,7 @@ func main() {
 		fmt.Println("   or: frep [ --version | --help ]")
 	}
 
-    app.AllowArgumentCount(1, -1)
+	app.AllowArgumentCount(1, -1)
 
 	app.Execute = cliExecute
 
