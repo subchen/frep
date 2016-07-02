@@ -3,80 +3,104 @@
 A template file replace tool written golang
 
 ```
-Usage of repl:
-  -t, --template source[:dest]
-    	Template source and dest files. can be passed multiple times
-  --delims left:after
-    	Template tag delimiters. default "{{:}}"
-  --overwrite
-    	Overwrite file without errors if dest file exists
-  --stdout
-    	Output to console instead of file
-  -e, --env name=value
-    	Environment name=value pair, can be passed multiple times
-  -json json
-        load environment from json string
-  -load file
-        load environment from json or yaml file
-  --version
-    	Show version
-  -h, --help
-    	Show help
+Usage: frep [OPTIONS] input-file:[output-file] ...
+   or: frep [ --version | --help ]
+
+Transform template file using environment, arguments, json/yaml files
+
+Options:
+  -e, --env=value   set variable name=value, can be passed multiple times
+  --json=string     load variables from json object
+  --load=file       load variables from json/yaml files
+  --overwrite       overwrite if destination file exists
+  --testing         test mode, output transform result to console
+  --delims={{:}}    template tag delimiters
+  --version         show version information
+  --help            show this help
 ```
 
-# Command-line Options
+# Examples
 
-Output console using ENV
+## Load template variables
+
+Load from environment
 
 ```
 export webroot=/usr/share/nginx/html
 export port=8080
-frep -t nginx.conf.in --stdout
+frep nginx.conf.in
 ```
 
-Output console using arguments
+Load from arguments
 
 ```
-frep -t nginx.conf.in --stdout -e port=8080 -e webroot=/usr/share/nginx/html
+frep nginx.conf.in -e webroot=/usr/share/nginx/html -e port=8080
 ```
 
-Output to default file (Remove last template file ext)
+Load from JSON String
 
 ```
-frep -t nginx.conf.in --overwrite -e port=8080
+frep nginx.conf.in --json '{"webroot": "/usr/share/nginx/html", "port": 8080}'
+```
+
+Load from JSON file
+
+```
+cat > ctx.json << EOF
+{
+  "webroot": "/usr/share/nginx/html",
+  "port": 8080,
+  "servers": [
+    "127.0.0.1:8081",
+    "127.0.0.1:8082"
+  ]
+}
+EOF
+
+frep nginx.conf.in --load ctx.json
+```
+
+Load from Yaml file
+
+```
+cat > ctx.yaml << EOF
+webroot: /usr/share/nginx/html
+port: 8080
+servers:
+  - 127.0.0.1:8081
+  - 127.0.0.1:8082
+EOF
+
+frep nginx.conf.in --load ctx.yaml
+```
+
+## Output
+
+Output to default file (auto remove last file ext)
+
+```
+frep nginx.conf.in --overwrite
 ```
 
 Output to specified file
 
 ```
-frep -t nginx.conf.in:/etc/nginx.conf --overwrite -e port=8080
+frep nginx.conf.in:/etc/nginx.conf --overwrite -e port=8080
+```
+
+Output to console
+
+```
+frep nginx.conf.in --testing
 ```
 
 Output multiple files
 
 ```
-frep -t nginx.conf.in -t redis.conf.in ...
+frep nginx.conf.in redis.conf.in ...
 ```
 
-Load from json string
-
-```
-frep -t nginx.conf.in -json '{"bind": "127.0.0.1", "port": 80, "servers": ["127.0.0.1:8081", "127.0.0.1:8082"]}'
-```
-
-Load from yaml file
-
-```
-cat > config.yaml << EOF
-bind: 127.0.0.1
-port: 80
-servers:
-    - 127.0.0.1:8081
-    - 127.0.0.1:8082
-EOF
-
-frep -t nginx.conf.in -load config.yaml
-```
+## Others
 
 If your file uses `{{` and `}}` as part of it's syntax, you can change the template escape characters using the -delims.
 
@@ -89,7 +113,7 @@ frep --delims "<%:%>" ...
 Templates use Golang [text/template](http://golang.org/pkg/text/template/). You can access environment variables within a template
 
 ```
-PATH = {{ .PATH }}
+ENV.PATH = {{ .PATH }}
 ```
 
 There are a few built in functions as well:
@@ -106,10 +130,17 @@ server {
     root {{default .webroot "/usr/share/nginx/html"}};
     index index.html index.htm;
 
-    server_name localhost;
-
-    location / {
-      access_log off;
+    location /api {
+        access_log off;
+        proxy_pass http://backend;
     }
 }
+
+upstream backend {
+    ip_hash;
+{{range .servers -}}
+    server {{.}};
+{{-end}}
+}
 ```
+
