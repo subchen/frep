@@ -145,7 +145,7 @@ func cliExecute(ctx *cli.Context) {
 	vars := newTemplateVariables(ctx)
 
 	for _, file := range ctx.Args() {
-		testing := ctx.Bool("--test")
+		testing := ctx.Bool("--testing")
 		overwrite := ctx.Bool("--overwrite")
 		templateExecute(t, file, vars, testing, overwrite)
 	}
@@ -158,7 +158,7 @@ func main() {
 	app.Flag("--json", "load variables from json object").Placeholder("string")
 	app.Flag("--load", "load variables from json/yaml files").Placeholder("file").Multiple()
 	app.Flag("--overwrite", "overwrite if destination file exists").Bool()
-	app.Flag("--test", "test mode, output transform result to console").Bool()
+	app.Flag("--testing", "test mode, output transform result to console").Bool()
 	app.Flag("--delims", `template tag delimiters`).Default("{{:}}")
 
 	if BuildVersion == "" {
