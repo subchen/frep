@@ -173,7 +173,7 @@ func main() {
 		}
 	}
 
-	app.Usage = func(string) {
+	app.Usage = func() {
 		fmt.Println("Usage: frep [OPTIONS] input-file:[output-file] ...")
 		fmt.Println("   or: frep [ --version | --help ]")
 	}
