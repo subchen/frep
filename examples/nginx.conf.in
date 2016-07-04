@@ -1,0 +1,17 @@
+server {
+    listen {{.port}} default_server;
+
+    root {{default .webroot "/usr/share/nginx/html"}};
+    index index.html index.htm;
+
+    location /api {
+        access_log off;
+        proxy_pass http://backend;
+    }
+}
+upstream backend {
+    ip_hash;
+{{range .servers}}
+    server {{.}};
+{{end -}}
+}
