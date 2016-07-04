@@ -35,7 +35,7 @@ func newTemplateVariables(ctx *cli.Context) map[string]interface{} {
 	if jsonStr := ctx.String("--json"); jsonStr != "" {
 		var obj map[string]interface{}
 		if err := json.Unmarshal([]byte(jsonStr), &obj); err != nil {
-			cli.Fatalf("fatal: bad json format: %s", jsonStr)
+			cli.Fatalf("fatal: bad json format: %v", err)
 		}
 		for k, v := range obj {
 			vars[k] = v
@@ -50,11 +50,11 @@ func newTemplateVariables(ctx *cli.Context) map[string]interface{} {
 			var obj map[string]interface{}
 			if strings.HasSuffix(file, ".json") {
 				if err := json.Unmarshal(bytes, &obj); err != nil {
-					cli.Fatalf("fatal: bad json format: %s", string(bytes))
+					cli.Fatalf("fatal: bad json format: %v", err)
 				}
 			} else if strings.HasSuffix(file, ".yaml") || strings.HasSuffix(file, ".yml") {
 				if err := yaml.Unmarshal(bytes, &obj); err != nil {
-					cli.Fatalf("fatal: bad yaml format: %s", string(bytes))
+					cli.Fatalf("fatal: bad yaml format: %v", err)
 				}
 			} else {
 				cli.Fatalf("fatal: bad file type: %s", file)
@@ -103,7 +103,7 @@ func templateExecute(t *template.Template, file string, ctx interface{}, testing
 
 	tmpl, err := t.ParseFiles(srcFile)
 	if err != nil {
-		cli.Fatalf("fatal: unable to parse template: %s", err)
+		cli.Fatalf("fatal: unable to parse template: %v", err)
 	}
 
 	dest := os.Stdout
@@ -116,14 +116,14 @@ func templateExecute(t *template.Template, file string, ctx interface{}, testing
 
 		dest, err = os.Create(destFile)
 		if err != nil {
-			cli.Fatalf("fatal: unable to create file: %s", err)
+			cli.Fatalf("fatal: unable to create file: %v", err)
 		}
 		defer dest.Close()
 	}
 
 	err = tmpl.ExecuteTemplate(dest, filepath.Base(srcFile), ctx)
 	if err != nil {
-		cli.Fatalf("fatal: transform template error: %s\n", err)
+		cli.Fatalf("fatal: transform template error: %v", err)
 	}
 }
 
