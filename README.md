@@ -23,6 +23,26 @@ Options:
   --help            show this help
 ```
 
+# Downloads
+
+[frep-1.0.0](https://github.com/subchen/frep/releases/tag/v1.0.0)
+
+Linux amd64
+
+```
+curl -fSL https://github.com/subchen/frep/releases/download/v1.0.0/frep-linux-amd64.zip -o frep.zip
+unzip frep.zip
+sudo mv frep-linux-amd64 /usr/bin/
+```
+
+OS X
+
+```
+curl -fSL https://github.com/subchen/frep/releases/download/v1.0.0/frep-darwin-amd64.zip -o frep.zip
+unzip frep.zip
+sudo mv frep-darwin-amd64 /usr/bin/
+```
+
 # Examples
 
 ## Load template variables
