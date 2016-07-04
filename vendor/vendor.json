@@ -1,0 +1,25 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"checksumSHA1": "jT/4DLnBuVDQYRhHvGUNHUumF6A=",
+			"path": "github.com/go-yaml/yaml",
+			"revision": "a83829b6f1293c91addabc89d0571c246397bbf4",
+			"revisionTime": "2016-03-01T20:40:22Z"
+		},
+		{
+			"checksumSHA1": "5Iu+fHOWFH5CRIXX9Zwa46w4UKQ=",
+			"path": "github.com/subchen/goutils/cli",
+			"revision": "80122350c078683310a3ef0fc88c924101671ef0",
+			"revisionTime": "2016-07-01T16:58:44Z"
+		},
+		{
+			"checksumSHA1": "YFd+SAPdDDP4nftgxUB9kPqtAcA=",
+			"path": "github.com/subchen/goutils/convert",
+			"revision": "80122350c078683310a3ef0fc88c924101671ef0",
+			"revisionTime": "2016-07-01T16:58:44Z"
+		}
+	],
+	"rootPath": "github.com/subchen/frep"
+}
