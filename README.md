@@ -138,9 +138,9 @@ server {
 
 upstream backend {
     ip_hash;
-{{range .servers -}}
+{{range .servers}}
     server {{.}};
-{{-end}}
+{{end}}
 }
 ```
 
