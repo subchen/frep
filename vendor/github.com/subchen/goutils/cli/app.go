@@ -17,6 +17,9 @@ type App struct {
 	// Usage is a string or a func() to call
 	Usage interface{}
 
+	// MoreHelp is a string or a func() to call
+	MoreHelp interface{}
+
 	// Execute will be called when arguments is parsed
 	Execute func(*Context)
 }
@@ -58,6 +61,7 @@ func (app *App) Run() {
 	}
 
 	app.cmd.Usage = app.Usage
+	app.cmd.MoreHelp = app.MoreHelp
 
 	app.cmd.Execute = func(ctx *Context) {
 		if ctx.Global().Bool("--version") {
@@ -76,19 +80,22 @@ func (app *App) Run() {
 		}
 	}
 
-	args, err := newArgs(os.Args[1:])
-	if err != nil {
-		Fatalf("%v", err)
-	}
+	args := newArguments(os.Args[1:])
 
-	if err := app.cmd.Run(nil, args); err != nil {
-		Fatalf("%v", err)
-	}
+	app.cmd.Run(app, nil, args)
+}
+
+// handleError handle app error on command.Run() and exit 1
+func (app *App) handleError(ctx *Context, err string) {
+	fmt.Println(err)
+	fmt.Printf("\nSee '%s --help'\n", ctx.CommandNames())
+	os.Exit(1)
 }
 
 // Fatalf output error and exit 1
 func Fatalf(format string, a ...interface{}) {
-	fmt.Printf(format, a...)
-	fmt.Println()
-	os.Exit(1)
+    fmt.Printf(format, a...)
+    fmt.Println()
+    os.Exit(1)
 }
+

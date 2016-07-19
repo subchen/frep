@@ -2,6 +2,7 @@ package cli
 
 import (
 	"errors"
+	"fmt"
 	"reflect"
 	"strconv"
 	"time"
@@ -11,6 +12,7 @@ import (
 
 // Context is a object for parsed command-line options.
 type Context struct {
+	app     *App
 	parent  *Context
 	cmd     *Command
 	args    []string
@@ -187,4 +189,14 @@ func (ctx *Context) Arg(index int) string {
 // RawArgs returns raw of args
 func (ctx *Context) RawArgs() []string {
 	return ctx.rawArgs
+}
+
+// Error throws an error and exit
+func (ctx *Context) Error(err string) {
+	ctx.app.handleError(ctx, err)
+}
+
+// Errorf throws an error and exit
+func (ctx *Context) Errorf(format string, a ...interface{}) {
+	ctx.app.handleError(ctx, fmt.Sprintf(format, a...))
 }

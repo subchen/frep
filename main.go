@@ -14,7 +14,7 @@ import (
 	"github.com/subchen/goutils/cli"
 )
 
-const VERSION = "1.0.0"
+const VERSION = "1.0.1"
 
 var (
 	BuildVersion   string
@@ -156,7 +156,7 @@ func main() {
 
 	app.Flag("-e, --env", "set variable name=value, can be passed multiple times").Multiple()
 	app.Flag("--json", "load variables from json object").Placeholder("string")
-	app.Flag("--load", "load variables from json/yaml files").Placeholder("file").Multiple()
+	app.Flag("--load", "load variables from json/yaml files").Multiple()
 	app.Flag("--overwrite", "overwrite if destination file exists").Bool()
 	app.Flag("--testing", "test mode, output transform result to console").Bool()
 	app.Flag("--delims", `template tag delimiters`).Default("{{:}}")

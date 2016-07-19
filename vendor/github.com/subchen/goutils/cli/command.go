@@ -1,8 +1,6 @@
 package cli
 
 import (
-	"errors"
-	"fmt"
 	"strings"
 )
 
@@ -15,9 +13,13 @@ type Command struct {
 	subCommandRequired bool
 	minArgNum          int
 	maxArgNum          int // -1 is max
+	keepRawArgs        bool
 
 	// Usage is a string or a func() to call
 	Usage interface{}
+
+	// MoreHelp is a string or a func() to call
+	MoreHelp interface{}
 
 	// Execute will be called when this command is invoked
 	Execute func(*Context)
@@ -26,10 +28,11 @@ type Command struct {
 // NewCommand create a command
 func NewCommand(name string, help string) *Command {
 	return &Command{
-		name:      name,
-		help:      help,
-		minArgNum: 0,
-		maxArgNum: -1,
+		name:        name,
+		help:        help,
+		minArgNum:   0,
+		maxArgNum:   -1,
+		keepRawArgs: false,
 	}
 }
 
@@ -59,113 +62,124 @@ func (cmd *Command) SubCommandRequired() *Command {
 	return cmd
 }
 
-// AllowArgumentCount set min args length
+// AllowArgumentCount set min and max args length
 func (cmd *Command) AllowArgumentCount(min, max int) *Command {
 	cmd.minArgNum = min
 	cmd.maxArgNum = max
 	return cmd
 }
 
+// KeepRawArgs don't parse the args
+func (cmd *Command) KeepRawArgs() *Command {
+	cmd.keepRawArgs = true
+	return cmd
+}
+
 // Run is an entry point to the cli.Command.
-func (cmd *Command) Run(parent *Context, args *Arguments) error {
+func (cmd *Command) Run(app *App, parent *Context, args *Arguments) {
 	if cmd.lookupFlag("--help") == nil {
 		cmd.Flag("--help", "show this help").Bool()
 	}
 
 	ctx := &Context{
+		app:     app,
 		parent:  parent,
 		cmd:     cmd,
-		rawArgs: args.RawRemains(),
+		rawArgs: args.RawArgs(),
 	}
 
-	// parse
-	for args.HasNext() {
-		arg := args.Next()
-
-		if strings.HasPrefix(arg, "-") {
-			f := cmd.lookupFlag(arg)
-			if f == nil {
-				return fmt.Errorf("fatal: unrecognized option: `%s`", arg)
+	if !cmd.keepRawArgs {
+		// parse
+		for {
+			opt, value := args.Next()
+			if opt == "" && value == "" {
+				break
 			}
-
-			value := "true"
-			if !f.boolFlag {
-				if !args.HasNext() {
-					return fmt.Errorf("fatal: Option `%s` requires a value", arg)
+			if opt != "" {
+				f := cmd.lookupFlag(opt)
+				if f == nil {
+					ctx.Errorf("fatal: unrecognized option: `%s`", opt)
 				}
-				value = args.Next()
-			}
 
-			if strings.HasPrefix(value, "-") {
-				return fmt.Errorf("fatal: Option `%s` requires a value", arg)
-			}
+				if f.boolFlag && value != "" {
+					ctx.Errorf("fatal: Option `%s` is a bool option", opt)
+				}
 
-			if !f.multipleFlag && f.hasValue() {
-				return fmt.Errorf("fatal: Option `%s` cannot be multiple values", arg)
-			}
+				if !f.boolFlag && value == "" {
+					optNext, valueNext := args.Next()
+					if optNext != "" || valueNext == "" {
+						ctx.Errorf("fatal: Option `%s` requires a value", opt)
+					}
+					value = valueNext
+				}
 
-			f.setValue(value)
+				if !f.multipleFlag && f.hasValue() {
+					ctx.Errorf("fatal: Option `%s` cannot be multiple values", opt)
+				}
 
-		} else {
-			if len(cmd.subCommands) == 0 {
-				ctx.args = append(ctx.args, arg)
+				f.setValue(value)
+
 			} else {
-				sc := cmd.lookupSubCommand(arg)
-				if sc == nil {
-					return fmt.Errorf("fatal: `%s` is not a command", arg)
+				if len(cmd.subCommands) == 0 {
+					ctx.args = append(ctx.args, value)
+				} else {
+					sc := cmd.lookupSubCommand(value)
+					if sc == nil {
+						ctx.Errorf("fatal: `%s` is not a command", value)
+					}
+					// execute sub command
+					if cmd.Execute != nil {
+						cmd.Execute(ctx)
+					}
+					sc.Run(app, ctx, args)
+					return
 				}
-				// execute sub command
-				if cmd.Execute != nil {
-					cmd.Execute(ctx)
-				}
-				return sc.Run(ctx, args)
 			}
 		}
-	}
 
-	if ctx.Bool("--help") {
-		ctx.Help()
-	}
-
-	if !ctx.Global().Bool("--version") {
-		// print help is no ant args
-		if ctx.parent == nil && len(ctx.rawArgs) == 0 {
+		if ctx.Bool("--help") {
 			ctx.Help()
 		}
 
-		// validate command
-		if cmd.subCommandRequired && len(cmd.subCommands) > 0 {
-			ctx.Help()
-		}
-
-		// validate required flags
-		for _, f := range cmd.flags {
-			if f.required && !f.hasValue() {
-				return fmt.Errorf("fatal: `%s` is required", f.names[0])
+		if !ctx.Global().Bool("--version") {
+			// print help is no any args
+			if ctx.parent == nil && len(ctx.rawArgs) == 0 {
+				ctx.Help()
 			}
-		}
 
-		// validate args count
-		if len := int(ctx.NArg()); len < cmd.minArgNum || (len > cmd.maxArgNum && cmd.maxArgNum > 0) {
-			if cmd.minArgNum == cmd.maxArgNum {
-				return fmt.Errorf("fatal: `%s` requires %d argument(s)", ctx.CommandNames(), cmd.minArgNum)
-			} else if cmd.maxArgNum < 0 {
-				return fmt.Errorf("fatal: `%s` at least requires %d argument(s)", ctx.CommandNames(), cmd.minArgNum)
-			} else {
-				return fmt.Errorf("fatal: `%s` requires %d-%d argument(s)", ctx.CommandNames(), cmd.minArgNum, cmd.maxArgNum)
+			// validate command
+			if cmd.subCommandRequired && len(cmd.subCommands) > 0 {
+				ctx.Help()
 			}
+
+			// validate required flags
+			for _, f := range cmd.flags {
+				if f.required && !f.hasValue() {
+					ctx.Errorf("fatal: `%s` is required", f.names[0])
+				}
+			}
+
+			// validate args count
+			if len := int(ctx.NArg()); len < cmd.minArgNum || (len > cmd.maxArgNum && cmd.maxArgNum > 0) {
+				if cmd.minArgNum == cmd.maxArgNum {
+					ctx.Errorf("fatal: `%s` requires %d argument(s)", ctx.CommandNames(), cmd.minArgNum)
+				} else if cmd.maxArgNum < 0 {
+					ctx.Errorf("fatal: `%s` at least requires %d argument(s)", ctx.CommandNames(), cmd.minArgNum)
+				} else {
+					ctx.Errorf("fatal: `%s` requires %d-%d argument(s)", ctx.CommandNames(), cmd.minArgNum, cmd.maxArgNum)
+				}
+			}
+
 		}
 
 	}
 
 	// execute command
 	if cmd.Execute == nil {
-		return errors.New("fatal: Command.Execute() is undefined")
+		ctx.Error("fatal: Command.Execute() is undefined")
 	}
 
 	cmd.Execute(ctx)
-
-	return nil
 }
 
 // lookupFlag returns the named flag on Command. Returns nil if the flag does not exist

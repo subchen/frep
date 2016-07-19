@@ -65,10 +65,15 @@ func (f *Flag) nameLabel() string {
 			label += "=" + f.placeholder
 		} else if f.defaultValue != "" {
 			label += "=" + f.defaultValue
+		} else if f.multipleFlag {
+			label += "=[]"
 		} else {
 			label += "=value"
 		}
 	}
+	//if strings.HasPrefix(label, "--") {
+	//    label = "    " + label;
+	//}
 
 	return label
 }

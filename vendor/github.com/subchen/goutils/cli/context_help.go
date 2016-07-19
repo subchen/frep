@@ -12,7 +12,7 @@ func (ctx *Context) Help() {
 
 	// usage
 	if usage, ok := cmd.Usage.(string); ok {
-		fmt.Print(usage)
+		fmt.Println(usage)
 	} else if usageFn, ok := cmd.Usage.(func()); ok {
 		usageFn()
 	} else {
@@ -21,23 +21,29 @@ func (ctx *Context) Help() {
 			format = "Usage: %s [OPTIONS] COMMAND [OPTIONS] %s\n"
 		}
 
-		args := "args"
-		if cmd.minArgNum == 0 {
-			args = "[args]"
+		args := ""
+		if cmd.maxArgNum == 1 {
+			args = "ARG"
+		} else if cmd.maxArgNum != 0 {
+			args = "ARG ..."
 		}
-		if cmd.maxArgNum > 0 {
-			args = args + " ..."
+		if cmd.minArgNum == 0 && args != "" {
+			args = "[" + args + "]"
 		}
 
 		fmt.Printf(format, ctx.CommandNames(), args)
-		fmt.Printf("   or: %s [ --version | help ]\n", ctx.CommandNames())
+		if ctx.Parent() == nil {
+			fmt.Printf("   or: %s [ --version | --help ]\n", ctx.CommandNames())
+		} else {
+			fmt.Printf("   or: %s --help\n", ctx.CommandNames())
+		}
 	}
 
 	// help
 	fmt.Printf("\n%s\n\n", cmd.help)
 
 	// options
-	if len(cmd.flags) > 0 {
+	if len(cmd.flags) > 1 { // skip if only --help
 		// calc max width for option name
 		max := 0
 		for _, f := range cmd.flags {
@@ -70,7 +76,18 @@ func (ctx *Context) Help() {
 			fmt.Printf("  %s%s   %s\n", sc.name, whitespaces, sc.help)
 		}
 		fmt.Println()
+	}
 
+	// more help
+	if moreHelp, ok := cmd.MoreHelp.(string); ok {
+		fmt.Println(moreHelp)
+		fmt.Println()
+	} else if moreHelpFn, ok := cmd.MoreHelp.(func()); ok {
+		moreHelpFn()
+		fmt.Println()
+	}
+
+	if len(cmd.subCommands) > 0 {
 		fmt.Printf("Run '%s COMMAND --help' for more information on a command.\n", ctx.CommandNames())
 	}
 

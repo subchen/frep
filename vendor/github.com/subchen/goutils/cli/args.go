@@ -1,92 +1,77 @@
 package cli
 
 import (
-	"fmt"
 	"strings"
 )
 
-// Arguments process process arguments
+// Argument process arguments
 type Arguments struct {
-	rawArgs []string
 	args    []string
-	mapping []int
-	index   int
 	count   int
+	index   int
+	rawMode bool
 }
 
-func newArgs(arguments []string) (*Arguments, error) {
-	args, mapping, err := normalizeArgs(arguments)
-	if err != nil {
-		return nil, err
-	}
-
+// newArguments returns an Arguments instance
+func newArguments(arguments []string) *Arguments {
 	return &Arguments{
-		rawArgs: arguments,
-		args:    args,
-		mapping: mapping,
+		args:    arguments,
+		count:   len(arguments),
 		index:   0,
-		count:   len(args),
-	}, nil
+		rawMode: false,
+	}
 }
 
-// HasNext return whether exist next argument
-func (a *Arguments) HasNext() bool {
-	return a.index < a.count
+// RawArgs returns remains raw args
+func (a *Arguments) RawArgs() []string {
+	return a.args[a.index:]
 }
 
 // Next returns the next argument
-func (a *Arguments) Next() string {
+func (a *Arguments) Next() (string, string) {
 	if a.index >= a.count {
-		return ""
+		return "", ""
 	}
 
 	arg := a.args[a.index]
 	a.index = a.index + 1
-	return arg
-}
 
-// RawRemains returns raw remain arguments
-func (a *Arguments) RawRemains() []string {
-	if a.HasNext() {
-		index := a.mapping[a.index]
-		return a.rawArgs[index:]
+	if a.rawMode {
+		return "", arg
 	}
-	return nil
-}
 
-func normalizeArgs(arguments []string) (argv []string, mapping []int, err error) {
-	argv = make([]string, 0, 8)
-	mapping = make([]int, 0, 8)
+	if arg == "--" {
+		a.rawMode = true
+		return a.Next()
+	}
 
-	for i, arg := range arguments {
-		if strings.HasPrefix(arg, "--") {
-			pairs := strings.SplitN(arg, "=", 2)
-			argv = append(argv, pairs[0])
-			mapping = append(mapping, i)
+	if arg == "-" {
+		return "-", ""
+	}
 
-			if len(pairs) == 2 {
-				value := pairs[1]
-				if value == "" {
-					return nil, nil, fmt.Errorf("fatal: Option `%s` is invalid format", arg)
-				}
-				if strings.HasPrefix(value, "\"") && strings.HasSuffix(value, "\"") {
-					value = value[1 : len(value)-1]
-				} else if strings.HasPrefix(value, "'") && strings.HasSuffix(value, "'") {
-					value = value[1 : len(value)-1]
-				}
-				argv = append(argv, value)
-				mapping = append(mapping, i)
-			}
-		} else if strings.HasPrefix(arg, "-") {
-			for _, a := range arg[1:] {
-				argv = append(argv, "-"+string(a))
-				mapping = append(mapping, i)
-			}
+	if strings.HasPrefix(arg, "--") {
+		pairs := strings.SplitN(arg, "=", 2)
+
+		if len(pairs) == 1 {
+			return pairs[0], ""
+		}
+
+		value := pairs[1]
+		if strings.HasPrefix(value, "\"") && strings.HasSuffix(value, "\"") {
+			value = value[1 : len(value)-1]
+		} else if strings.HasPrefix(value, "'") && strings.HasSuffix(value, "'") {
+			value = value[1 : len(value)-1]
+		}
+		return pairs[0], value
+	}
+
+	if strings.HasPrefix(arg, "-") {
+		if len(arg) > 3 && arg[2] == '=' {
+			return arg[:2], arg[3:]
 		} else {
-			argv = append(argv, arg)
-			mapping = append(mapping, i)
+			return arg[:2], arg[2:]
 		}
 	}
 
-	return argv, mapping, nil
+	return "", arg
 }
