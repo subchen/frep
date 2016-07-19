@@ -178,14 +178,14 @@ func main() {
 		fmt.Println("   or: frep [ --version | --help ]")
 	}
 
-    app.MoreHelp = func() {
-        fmt.Println("Examples:")
-        fmt.Println("  frep nginx.conf.in -e webroot=/usr/share/nginx/html -e port=8080")
-        fmt.Println("  frep nginx.conf.in:/etc/nginx.conf -e webroot=/usr/share/nginx/html -e port=8080")
-        fmt.Println("  frep nginx.conf.in --json '{\"webroot\": \"/usr/share/nginx/html\", \"port\": 8080}'")
-        fmt.Println("  frep nginx.conf.in --load context.json --overwrite")
-    }
-        
+	app.MoreHelp = func() {
+		fmt.Println("Examples:")
+		fmt.Println("  frep nginx.conf.in -e webroot=/usr/share/nginx/html -e port=8080")
+		fmt.Println("  frep nginx.conf.in:/etc/nginx.conf -e webroot=/usr/share/nginx/html -e port=8080")
+		fmt.Println("  frep nginx.conf.in --json '{\"webroot\": \"/usr/share/nginx/html\", \"port\": 8080}'")
+		fmt.Println("  frep nginx.conf.in --load context.json --overwrite")
+	}
+
 	app.AllowArgumentCount(1, -1)
 
 	app.Execute = cliExecute
