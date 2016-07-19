@@ -13,9 +13,9 @@ Usage: frep [OPTIONS] input-file:[output-file] ...
 Transform template file using environment, arguments, json/yaml files
 
 Options:
-  -e, --env=value   set variable name=value, can be passed multiple times
+  -e, --env=[]      set variable name=value, can be passed multiple times
   --json=string     load variables from json object
-  --load=file       load variables from json/yaml files
+  --load=[]         load variables from json/yaml files
   --overwrite       overwrite if destination file exists
   --testing         test mode, output transform result to console
   --delims={{:}}    template tag delimiters
@@ -25,12 +25,12 @@ Options:
 
 # Downloads
 
-[frep-1.0.0](https://github.com/subchen/frep/releases/tag/v1.0.0)
+[frep-1.0.1](https://github.com/subchen/frep/releases/tag/v1.0.1)
 
 Linux amd64
 
 ```
-curl -fSL https://github.com/subchen/frep/releases/download/v1.0.0/frep-linux-amd64.zip -o frep.zip
+curl -fSL https://github.com/subchen/frep/releases/download/v1.0.1/frep-linux-amd64.zip -o frep.zip
 unzip frep.zip
 sudo mv frep-linux-amd64 /usr/bin/
 ```
@@ -38,7 +38,7 @@ sudo mv frep-linux-amd64 /usr/bin/
 OS X
 
 ```
-curl -fSL https://github.com/subchen/frep/releases/download/v1.0.0/frep-darwin-amd64.zip -o frep.zip
+curl -fSL https://github.com/subchen/frep/releases/download/v1.0.1/frep-darwin-amd64.zip -o frep.zip
 unzip frep.zip
 sudo mv frep-darwin-amd64 /usr/bin/
 ```
