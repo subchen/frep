@@ -31,16 +31,14 @@ Linux amd64
 
 ```
 curl -fSL https://github.com/subchen/frep/releases/download/v1.0.1/frep-linux-amd64.zip -o frep.zip
-unzip frep.zip
-sudo mv frep-linux-amd64 /usr/bin/
+sudo unzip frep.zip -d /usr/bin/
 ```
 
 OS X
 
 ```
 curl -fSL https://github.com/subchen/frep/releases/download/v1.0.1/frep-darwin-amd64.zip -o frep.zip
-unzip frep.zip
-sudo mv frep-darwin-amd64 /usr/bin/
+sudo unzip frep.zip -d /usr/bin/
 ```
 
 # Examples
