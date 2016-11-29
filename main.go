@@ -12,6 +12,7 @@ import (
 
 	"github.com/go-yaml/yaml"
 	"github.com/subchen/goutils/cli"
+	"github.com/Masterminds/sprig"
 )
 
 const VERSION = "1.0.1"
@@ -133,7 +134,7 @@ func cliExecute(ctx *cli.Context) {
 		"default": defaultValue,
 	}
 
-	t := template.New("noname").Funcs(funcMap)
+	t := template.New("noname").Funcs(funcMap).Funcs(sprig.TxtFuncMap())
 	if delimsStr := ctx.String("--delims"); delimsStr != "" {
 		delims := strings.Split(delimsStr, ":")
 		if len(delims) != 2 {
