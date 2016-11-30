@@ -1,7 +1,7 @@
 server {
     listen {{.port}} default_server;
 
-    root {{default .webroot "/usr/share/nginx/html"}};
+    root {{ .webroot | default "/usr/share/nginx/html"}};
     index index.html index.htm;
 
     location /api {
@@ -15,3 +15,4 @@ upstream backend {
     server {{.}};
 {{end -}}
 }
+
