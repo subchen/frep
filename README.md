@@ -25,20 +25,27 @@ Options:
 
 # Downloads
 
-[frep-1.0.1](https://github.com/subchen/frep/releases/tag/v1.0.1)
+[frep-1.1.0](https://github.com/subchen/frep/releases/tag/v1.1.0)
 
 Linux amd64
 
 ```
-curl -fSL https://github.com/subchen/frep/releases/download/v1.0.1/frep-linux-amd64.zip -o frep.zip
+curl -fSL https://github.com/subchen/frep/releases/download/v1.1.0/frep-linux-amd64.zip -o frep.zip
 sudo unzip frep.zip -d /usr/bin/
 ```
 
-OS X
+MAC OS
 
 ```
-curl -fSL https://github.com/subchen/frep/releases/download/v1.0.1/frep-darwin-amd64.zip -o frep.zip
+curl -fSL https://github.com/subchen/frep/releases/download/v1.1.0/frep-darwin-amd64.zip -o frep.zip
 sudo unzip frep.zip -d /usr/bin/
+```
+
+Windows
+
+```
+curl -fSL https://github.com/subchen/frep/releases/download/v1.1.0/frep-window-amd64.zip -o frep.zip
+unzip frep.zip -d c:/windows/
 ```
 
 # Examples
@@ -138,10 +145,7 @@ Templates use Golang [text/template](http://golang.org/pkg/text/template/). You 
 ENV.PATH = {{ .PATH }}
 ```
 
-There are a few built in functions as well:
-
-* `default $var $default` - Returns a default value for one that does not exist. `{{ default .VERSION "0.1.2" }}`
-* `split $string $sep` - Splits a string into an array using a separator string. Alias for strings.Split. `{{ split .PATH ":" }}`
+There are some built-in functions as well: https://github.com/Masterminds/sprig
 
 nginx.conf.in
 
@@ -149,7 +153,7 @@ nginx.conf.in
 server {
     listen {{.port}} default_server;
 
-    root {{default .webroot "/usr/share/nginx/html"}};
+    root {{.webroot | default "/usr/share/nginx/html"}};
     index index.html index.htm;
 
     location /api {

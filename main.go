@@ -15,7 +15,7 @@ import (
 	"github.com/Masterminds/sprig"
 )
 
-const VERSION = "1.0.1"
+const VERSION = "1.1.0"
 
 var (
 	BuildVersion   string
