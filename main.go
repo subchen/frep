@@ -76,17 +76,6 @@ func newTemplateVariables(ctx *cli.Context) map[string]interface{} {
 	return vars
 }
 
-// builtin template function
-func defaultValue(a, b interface{}) interface{} {
-	if a == nil {
-		return b
-	}
-	if s, ok := a.(string); ok && s == "" {
-		return b
-	}
-	return a
-}
-
 func templateExecute(t *template.Template, file string, ctx interface{}, testing bool, overwrite bool) {
 	filePair := strings.SplitN(file, ":", 2)
 	srcFile := filePair[0]
@@ -129,12 +118,7 @@ func templateExecute(t *template.Template, file string, ctx interface{}, testing
 }
 
 func cliExecute(ctx *cli.Context) {
-	funcMap := template.FuncMap{
-		"split":   strings.Split,
-		"default": defaultValue,
-	}
-
-	t := template.New("noname").Funcs(funcMap).Funcs(sprig.TxtFuncMap())
+	t := template.New("noname").Funcs(sprig.TxtFuncMap())
 	if delimsStr := ctx.String("--delims"); delimsStr != "" {
 		delims := strings.Split(delimsStr, ":")
 		if len(delims) != 2 {
