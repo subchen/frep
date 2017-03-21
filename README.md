@@ -38,7 +38,7 @@ MAC OS
 
 ```
 curl -fSL https://github.com/subchen/frep/releases/download/v1.1.0/frep-darwin-amd64.zip -o frep.zip
-sudo unzip frep.zip -d /usr/bin/
+sudo unzip frep.zip -d /usr/local/bin/
 ```
 
 Windows
