@@ -75,7 +75,7 @@ func newTemplateVariables(ctx *cli.Context) map[string]interface{} {
 	return vars
 }
 
-func templateExecute(t *template.Template, file string, ctx interface{}, testing bool, overwrite bool) {
+func templateExecute(t *template.Template, file string, ctx interface{}, dryrun bool, overwrite bool) {
 	filePair := strings.SplitN(file, ":", 2)
 	srcFile := filePair[0]
 	destFile := ""
@@ -96,7 +96,7 @@ func templateExecute(t *template.Template, file string, ctx interface{}, testing
 	}
 
 	dest := os.Stdout
-	if !testing {
+	if !dryrun {
 		if !overwrite {
 			if _, err := os.Stat(destFile); err == nil {
 				cli.Fatalf("fatal: unable overwrite destination file: %s", destFile)
@@ -129,9 +129,9 @@ func cliExecute(ctx *cli.Context) {
 	vars := newTemplateVariables(ctx)
 
 	for _, file := range ctx.Args() {
-		testing := ctx.Bool("--testing")
+		dryrun:= ctx.Bool("--dryrun")
 		overwrite := ctx.Bool("--overwrite")
-		templateExecute(t, file, vars, testing, overwrite)
+		templateExecute(t, file, vars, dryrun, overwrite)
 	}
 }
 
@@ -142,11 +142,11 @@ func main() {
 	app.Flag("--json", "load variables from json object").Placeholder("string")
 	app.Flag("--load", "load variables from json/yaml files").Multiple()
 	app.Flag("--overwrite", "overwrite if destination file exists").Bool()
-	app.Flag("--testing", "test mode, output transform result to console").Bool()
 	app.Flag("--delims", `template tag delimiters`).Default("{{:}}")
+	app.Flag("--dryrun", "output result to console instead of file").Bool()
 
 	if BuildVersion == "" {
-		app.Version = "0.0.1-snapshot"
+		app.Version = "0.0.0"
 	} else {
 		app.Version = func() {
 			fmt.Printf("Version: %s-%s\n", BuildVersion, BuildGitRev)
