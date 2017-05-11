@@ -10,15 +10,14 @@ import (
 	"strings"
 	"text/template"
 
+	"github.com/Masterminds/sprig"
 	"github.com/go-yaml/yaml"
 	"github.com/subchen/goutils/cli"
-	"github.com/Masterminds/sprig"
 )
-
-const VERSION = "1.1.0"
 
 var (
 	BuildVersion   string
+	BuildGitRev    string
 	BuildGitCommit string
 	BuildDate      string
 )
@@ -147,14 +146,14 @@ func main() {
 	app.Flag("--delims", `template tag delimiters`).Default("{{:}}")
 
 	if BuildVersion == "" {
-		app.Version = VERSION
+		app.Version = "0.0.1-snapshot"
 	} else {
 		app.Version = func() {
-			fmt.Printf("Version: %s-%s\n", VERSION, BuildVersion)
+			fmt.Printf("Version: %s-%s\n", BuildVersion, BuildGitRev)
 			fmt.Printf("Go version: %s\n", runtime.Version())
 			fmt.Printf("Git commit: %s\n", BuildGitCommit)
 			fmt.Printf("Built: %s\n", BuildDate)
-			fmt.Printf("OS/Arch: %s-%s\n", runtime.GOOS, runtime.GOARCH)
+			fmt.Printf("OS/Arch: %s/%s\n", runtime.GOOS, runtime.GOARCH)
 		}
 	}
 
