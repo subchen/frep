@@ -1,0 +1,9 @@
+package: github.com/subchen/frep
+import:
+- package: github.com/Masterminds/sprig
+  version: 2.11.0
+- package: github.com/go-yaml/yaml
+  version: v2
+- package: github.com/subchen/goutils
+  subpackages:
+  - cli

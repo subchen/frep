@@ -14,6 +14,7 @@ PACKAGES := $(shell go list ./... | grep -v /vendor/)
 
 clean:
 	@ rm -rf $(NAME)
+	@ glide vc --only-code --no-tests --no-legal-files
 
 fmt:
 	@ go fmt $(PACKAGES)
