@@ -10,6 +10,7 @@ import (
 	"strings"
 	"text/template"
 
+	"github.com/BurntSushi/toml"
 	"github.com/Masterminds/sprig"
 	"github.com/go-yaml/yaml"
 	"github.com/subchen/goutils/cli"
@@ -55,6 +56,10 @@ func newTemplateVariables(ctx *cli.Context) map[string]interface{} {
 			} else if strings.HasSuffix(file, ".yaml") || strings.HasSuffix(file, ".yml") {
 				if err := yaml.Unmarshal(bytes, &obj); err != nil {
 					cli.Fatalf("fatal: bad yaml format: %v", err)
+				}
+			} else if strings.HasSuffix(file, ".toml") {
+				if err := toml.Unmarshal(bytes, &obj); err != nil {
+					cli.Fatalf("fatal: bad toml format: %v", err)
 				}
 			} else {
 				cli.Fatalf("fatal: bad file type: %s", file)
@@ -129,7 +134,7 @@ func cliExecute(ctx *cli.Context) {
 	vars := newTemplateVariables(ctx)
 
 	for _, file := range ctx.Args() {
-		dryrun:= ctx.Bool("--dryrun")
+		dryrun := ctx.Bool("--dryrun")
 		overwrite := ctx.Bool("--overwrite")
 		templateExecute(t, file, vars, dryrun, overwrite)
 	}

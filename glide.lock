@@ -1,8 +1,10 @@
-hash: 9e332cd91d7608858b6c285fbe58189d98897a5d4b9a8d872f088ee71ef9b464
-updated: 2017-05-11T06:13:38.398227483Z
+hash: 3594e24645eff30fa1f264f4f89ef1f0ed5880c1ad5a72a0c32bcb32e8db6a0a
+updated: 2017-05-11T09:59:06.550311176Z
 imports:
 - name: github.com/aokoli/goutils
   version: e57d01ace047c1a43e6a49ecf3ecc50ed2be81d1
+- name: github.com/BurntSushi/toml
+  version: b26d9c308763d68093482582cea63d69be07a0f0
 - name: github.com/go-yaml/yaml
   version: cd8b52f8269e0feb286dfeef29f8fe4d5b397e0b
 - name: github.com/imdario/mergo
