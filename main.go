@@ -134,7 +134,6 @@ func templateExecute(t *template.Template, file string, ctx interface{}) {
 func main() {
 	app := cli.NewApp()
 	app.Name = "frep"
-	app.Version = "0.0.0"
 	app.Usage = "Generate file using template"
 	app.UsageText = "[options] input-file[:output-file] ..."
 	app.Authors = "Guoqiang Chen <subchen@gmail.com>"
