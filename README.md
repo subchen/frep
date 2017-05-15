@@ -34,7 +34,6 @@ EXAMPLES:
    frep nginx.conf.in:/etc/nginx.conf -e webroot=/usr/share/nginx/html -e port=8080
    frep nginx.conf.in --json '{"webroot": "/usr/share/nginx/html", "port": 8080}'
    frep nginx.conf.in --load config.json --overwrite
-
 ```
 
 ## Downloads
