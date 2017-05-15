@@ -4,150 +4,179 @@
 
 # frep
 
-A template file replace tool written golang
+Generate file using template from environment, arguments, json/yaml/toml config files.
 
 ```
-Usage: frep [OPTIONS] input-file:[output-file] ...
-   or: frep [ --version | --help ]
+NAME:
+   frep - Generate file using template
 
-Transform template file using environment, arguments, json/yaml files
+USAGE:
+   frep [options] input-file[:output-file] ...
 
-Options:
-  -e, --env=[]      set variable name=value, can be passed multiple times
-  --json=string     load variables from json object
-  --load=[]         load variables from json/yaml files
-  --overwrite       overwrite if destination file exists
-  --testing         test mode, output transform result to console
-  --delims={{:}}    template tag delimiters
-  --version         show version information
-  --help            show this help
-```
+VERSION:
+   1.2.0-50
 
-# Downloads
+AUTHORS:
+   Guoqiang Chen <subchen@gmail.com>
 
-[frep-1.1.0](https://github.com/subchen/frep/releases/tag/v1.1.0)
+OPTIONS:
+   -e name=value, --env name=value   set variable name=value, can be passed multiple times
+   --json jsonstring                 load variables from json object string
+   --load file                       load variables from json/yaml/toml file
+   --overwrite                       overwrite if destination file exists
+   --dryrun                          just output result to console instead of file
+   --delims value                    template tag delimiters (default: {{:}})
+   --help                            print this usage
+   --version                         print version information
 
-Linux amd64
-
-```
-curl -fSL https://github.com/subchen/frep/releases/download/v1.1.0/frep-linux-amd64.zip -o frep.zip
-sudo unzip frep.zip -d /usr/bin/
-```
-
-MAC OS
-
-```
-curl -fSL https://github.com/subchen/frep/releases/download/v1.1.0/frep-darwin-amd64.zip -o frep.zip
-sudo unzip frep.zip -d /usr/local/bin/
-```
-
-Windows
+EXAMPLES:
+   frep nginx.conf.in -e webroot=/usr/share/nginx/html -e port=8080
+   frep nginx.conf.in:/etc/nginx.conf -e webroot=/usr/share/nginx/html -e port=8080
+   frep nginx.conf.in --json '{"webroot": "/usr/share/nginx/html", "port": 8080}'
+   frep nginx.conf.in --load config.json --overwrite
 
 ```
-curl -fSL https://github.com/subchen/frep/releases/download/v1.1.0/frep-window-amd64.zip -o frep.zip
-unzip frep.zip -d c:/windows/
-```
 
-# Examples
+## Downloads
 
-## Load template variables
+- Linux amd64
 
-Load from environment
+    ```
+    curl -fSL https://raw.githubusercontent.com/subchen/frep/master/bin/1.2.0/frep-linux-amd64 -o /usr/local/bin/frep
+    chmod +x /usr/local/bin/frep
+    ```
 
-```
-export webroot=/usr/share/nginx/html
-export port=8080
-frep nginx.conf.in
-```
+- MAC OS
 
-Load from arguments
+    ```
+    curl -fSL https://raw.githubusercontent.com/subchen/frep/master/bin/1.2.0/frep-darwin-amd64 -o /usr/local/bin/frep
+    chmod +x /usr/local/bin/frep
+    ```
 
-```
-frep nginx.conf.in -e webroot=/usr/share/nginx/html -e port=8080
-```
+- Windows
 
-Load from JSON String
+    ```
+    wget https://raw.githubusercontent.com/subchen/frep/master/bin/1.2.0/frep-windows-amd64.exe
+    ```
 
-```
-frep nginx.conf.in --json '{"webroot": "/usr/share/nginx/html", "port": 8080}'
-```
+## Examples
 
-Load from JSON file
+### Load template variables
 
-```
-cat > ctx.json << EOF
-{
-  "webroot": "/usr/share/nginx/html",
-  "port": 8080,
-  "servers": [
-    "127.0.0.1:8081",
-    "127.0.0.1:8082"
-  ]
-}
-EOF
+- Load from environment
 
-frep nginx.conf.in --load ctx.json
-```
+    ```
+    export webroot=/usr/share/nginx/html
+    export port=8080
+    frep nginx.conf.in
+    ```
 
-Load from Yaml file
+- Load from arguments
 
-```
-cat > ctx.yaml << EOF
-webroot: /usr/share/nginx/html
-port: 8080
-servers:
-  - 127.0.0.1:8081
-  - 127.0.0.1:8082
-EOF
+    ```
+    frep nginx.conf.in -e webroot=/usr/share/nginx/html -e port=8080
+    ```
 
-frep nginx.conf.in --load ctx.yaml
-```
+- Load from JSON String
 
-## Output
+    ```
+    frep nginx.conf.in --json '{"webroot": "/usr/share/nginx/html", "port": 8080}'
+    ```
 
-Output to default file (auto remove last file ext)
+- Load from JSON file
 
-```
-frep nginx.conf.in --overwrite
-```
+    ```
+    cat > config.json << EOF
+    {
+      "webroot": "/usr/share/nginx/html",
+      "port": 8080,
+      "servers": [
+        "127.0.0.1:8081",
+        "127.0.0.1:8082"
+      ]
+    }
+    EOF
+    
+    frep nginx.conf.in --load config.json
+    ```
 
-Output to specified file
+- Load from YAML file
 
-```
-frep nginx.conf.in:/etc/nginx.conf --overwrite -e port=8080
-```
+    ```
+    cat > config.yaml << EOF
+    webroot: /usr/share/nginx/html
+    port: 8080
+    servers:
+      - 127.0.0.1:8081
+      - 127.0.0.1:8082
+    EOF
+    
+    frep nginx.conf.in --load config.yaml
+    ```
 
-Output to console
+- Load from TOML file
 
-```
-frep nginx.conf.in --testing
-```
+    ```
+    cat > config.toml << EOF
+    webroot = /usr/share/nginx/html
+    port = 8080
+    servers = [
+       "127.0.0.1:8081",
+       "127.0.0.1:8082"
+    ]
+    EOF
+    
+    frep nginx.conf.in --load config.toml
+    ```
 
-Output multiple files
+### Output
 
-```
-frep nginx.conf.in redis.conf.in ...
-```
+- Output to default file (Removed last file ext)
 
-## Others
+    ```
+    // output file: nginx.conf
+    frep nginx.conf.in --overwrite
+    ```
 
-If your file uses `{{` and `}}` as part of it's syntax, you can change the template escape characters using the -delims.
+- Output to the specified file
 
-```
-frep --delims "<%:%>" ...
-```
+    ```
+    // output file: /etc/nginx.conf
+    frep nginx.conf.in:/etc/nginx.conf --overwrite -e port=8080
+    ```
 
-# Template file
+- Output to console
 
-Templates use Golang [text/template](http://golang.org/pkg/text/template/). You can access environment variables within a template
+    ```
+    frep nginx.conf.in --dryrun
+    ```
+
+- Output multiple files
+
+    ```
+    frep nginx.conf.in redis.conf.in ...
+    ```
+
+## Template
+
+Templates use Golang [text/template](http://golang.org/pkg/text/template/). 
+
+You can access environment variables within a template
 
 ```
 ENV.PATH = {{ .PATH }}
 ```
 
+If your template file uses `{{` and `}}` as part of it's syntax,
+you can change the template escape characters using the `--delims`.
+
+```
+frep --delims "<%:%>" ...
+```
+
 There are some built-in functions as well: https://github.com/Masterminds/sprig
 
-nginx.conf.in
+Sample of nginx.conf.in
 
 ```
 server {
@@ -164,9 +193,8 @@ server {
 
 upstream backend {
     ip_hash;
-{{range .servers}}
+{{- range .servers }}
     server {{.}};
-{{end}}
+{{- end }}
 }
 ```
-

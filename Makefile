@@ -36,13 +36,13 @@ build: \
 
 build-linux: clean fmt
 	@ GOOS=linux GOARCH=amd64 \
-	go build -ldflags "$(LDFLAGS)" -o bin/$(NAME)-linux-$(VERSION)
+	go build -ldflags "$(LDFLAGS)" -o bin/$(VERSION)/$(NAME)-linux-amd64
 
 build-darwin: clean fmt
 	@ GOOS=darwin GOARCH=amd64 \
-	go build -ldflags "$(LDFLAGS)" -o bin/$(NAME)-darwin-$(VERSION)
+	go build -ldflags "$(LDFLAGS)" -o bin/$(VERSION)/$(NAME)-darwin-amd64
 
 build-windows: clean fmt
 	@ GOOS=windows GOARCH=amd64 \
-	go build -ldflags "$(LDFLAGS)" -o bin/$(NAME)-windows-$(VERSION).exe
+	go build -ldflags "$(LDFLAGS)" -o bin/$(VERSION)/$(NAME)-windows-amd64.exe
 
