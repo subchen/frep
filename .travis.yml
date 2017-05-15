@@ -3,5 +3,8 @@ language: go
 go:
   - 1.8
 
-script: make build
+install:
+  - go get -u github.com/Masterminds/glide/...
+  - go get -u github.com/sgotti/glide-vc
 
+script: make build
