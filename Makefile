@@ -14,20 +14,21 @@ PACKAGES := $(shell go list ./... | grep -v /vendor/)
 
 clean:
 	@ rm -rf $(NAME)
-	@ glide vc --only-code --no-tests --no-legal-files
+
+glide-vc:
+	@ glide-vc --only-code --no-tests --no-legal-files
 
 fmt:
 	@ go fmt $(PACKAGES)
 
 vet:
-	@go vet $(PACKAGES)
+	@ go vet $(PACKAGES)
 
 test: clean fmt
-	@ go test -v $(PACKAGES) $(args)
+	@ go test -v $(PACKAGES) $(ARGS)
 
 run: clean fmt
-	@ go build -o $(NAME)
-	@ cd test_docs; ../$(NAME) server
+	@ go run main.go $(ARGS)
 
 build: \
     build-linux \
