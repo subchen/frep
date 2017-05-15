@@ -1,5 +1,5 @@
-hash: 3594e24645eff30fa1f264f4f89ef1f0ed5880c1ad5a72a0c32bcb32e8db6a0a
-updated: 2017-05-11T09:59:06.550311176Z
+hash: e929db46624f74303d255ace87d1183019376ae7f095a125acfa9a8c48a4e6c6
+updated: 2017-05-15T13:03:09.715781945Z
 imports:
 - name: github.com/aokoli/goutils
   version: e57d01ace047c1a43e6a49ecf3ecc50ed2be81d1
@@ -15,11 +15,8 @@ imports:
   version: a48f46e0125cf60347eda24fccf1b09f1a0d681f
 - name: github.com/satori/go.uuid
   version: 879c5887cd475cd7864858769793b2ceb0d44feb
-- name: github.com/subchen/goutils
-  version: 29fb9e0b830cfb2dbad096aa8116c3d77e72f534
-  subpackages:
-  - cli
-  - convert
+- name: github.com/subchen/go-cli
+  version: 7b9829f27e0b2923cbffefb8e273e87776b2f87e
 - name: golang.org/x/crypto
   version: 122d919ec1efcfb58483215da23f815853e24b81
   subpackages:

@@ -6,16 +6,16 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"runtime"
 	"strings"
 	"text/template"
 
 	"github.com/BurntSushi/toml"
 	"github.com/Masterminds/sprig"
 	"github.com/go-yaml/yaml"
-	"github.com/subchen/goutils/cli"
+	"github.com/subchen/go-cli"
 )
 
+// version
 var (
 	BuildVersion   string
 	BuildGitRev    string
@@ -23,8 +23,18 @@ var (
 	BuildDate      string
 )
 
+// flags
+var (
+	EnvironList  []string
+	JsonStr      string
+	LoadFileList []string
+	Overwrite    bool
+	Dryrun       bool
+	Delims       string
+)
+
 // create template context
-func newTemplateVariables(ctx *cli.Context) map[string]interface{} {
+func newTemplateVariables() map[string]interface{} {
 	// ENV
 	vars := make(map[string]interface{})
 	for _, env := range os.Environ() {
@@ -33,10 +43,10 @@ func newTemplateVariables(ctx *cli.Context) map[string]interface{} {
 	}
 
 	// --json
-	if jsonStr := ctx.String("--json"); jsonStr != "" {
+	if JsonStr != "" {
 		var obj map[string]interface{}
-		if err := json.Unmarshal([]byte(jsonStr), &obj); err != nil {
-			cli.Fatalf("fatal: bad json format: %v", err)
+		if err := json.Unmarshal([]byte(JsonStr), &obj); err != nil {
+			panic(fmt.Errorf("bad json format: %v", err))
 		}
 		for k, v := range obj {
 			vars[k] = v
@@ -44,25 +54,25 @@ func newTemplateVariables(ctx *cli.Context) map[string]interface{} {
 	}
 
 	// --load
-	for _, file := range ctx.StringList("--load") {
+	for _, file := range LoadFileList {
 		if bytes, err := ioutil.ReadFile(file); err != nil {
-			cli.Fatalf("fatal: cannot load file: %s", file)
+			panic(fmt.Errorf("cannot load file, caused:\n\n   %v\n", err))
 		} else {
 			var obj map[string]interface{}
 			if strings.HasSuffix(file, ".json") {
 				if err := json.Unmarshal(bytes, &obj); err != nil {
-					cli.Fatalf("fatal: bad json format: %v", err)
+					panic(fmt.Errorf("bad json format, caused:\n\n   %v\n", err))
 				}
 			} else if strings.HasSuffix(file, ".yaml") || strings.HasSuffix(file, ".yml") {
 				if err := yaml.Unmarshal(bytes, &obj); err != nil {
-					cli.Fatalf("fatal: bad yaml format: %v", err)
+					panic(fmt.Errorf("bad yaml format, caused:\n\n   %v\n", err))
 				}
 			} else if strings.HasSuffix(file, ".toml") {
 				if err := toml.Unmarshal(bytes, &obj); err != nil {
-					cli.Fatalf("fatal: bad toml format: %v", err)
+					panic(fmt.Errorf("bad toml format, caused:\n\n   %v\n", err))
 				}
 			} else {
-				cli.Fatalf("fatal: bad file type: %s", file)
+				panic(fmt.Errorf("bad file type: %s", file))
 			}
 
 			for k, v := range obj {
@@ -72,7 +82,7 @@ func newTemplateVariables(ctx *cli.Context) map[string]interface{} {
 	}
 
 	// --env
-	for _, env := range ctx.StringList("--env") {
+	for _, env := range EnvironList {
 		kv := strings.SplitN(env, "=", 2)
 		vars[kv[0]] = kv[1]
 	}
@@ -80,7 +90,7 @@ func newTemplateVariables(ctx *cli.Context) map[string]interface{} {
 	return vars
 }
 
-func templateExecute(t *template.Template, file string, ctx interface{}, dryrun bool, overwrite bool) {
+func templateExecute(t *template.Template, file string, ctx interface{}) {
 	filePair := strings.SplitN(file, ":", 2)
 	srcFile := filePair[0]
 	destFile := ""
@@ -97,87 +107,116 @@ func templateExecute(t *template.Template, file string, ctx interface{}, dryrun 
 
 	tmpl, err := t.ParseFiles(srcFile)
 	if err != nil {
-		cli.Fatalf("fatal: unable to parse template: %v", err)
+		panic(fmt.Errorf("unable to parse template file, caused:\n\n   %v\n", err))
 	}
 
 	dest := os.Stdout
-	if !dryrun {
-		if !overwrite {
+	if !Dryrun {
+		if !Overwrite {
 			if _, err := os.Stat(destFile); err == nil {
-				cli.Fatalf("fatal: unable overwrite destination file: %s", destFile)
+				panic(fmt.Errorf("unable overwrite destination file: %s", destFile))
 			}
 		}
 
 		dest, err = os.Create(destFile)
 		if err != nil {
-			cli.Fatalf("fatal: unable to create file: %v", err)
+			panic(fmt.Errorf("unable to create file, caused:\n\n   %v\n", err))
 		}
 		defer dest.Close()
 	}
 
 	err = tmpl.ExecuteTemplate(dest, filepath.Base(srcFile), ctx)
 	if err != nil {
-		cli.Fatalf("fatal: transform template error: %v", err)
-	}
-}
-
-func cliExecute(ctx *cli.Context) {
-	t := template.New("noname").Funcs(sprig.TxtFuncMap())
-	if delimsStr := ctx.String("--delims"); delimsStr != "" {
-		delims := strings.Split(delimsStr, ":")
-		if len(delims) != 2 {
-			cli.Fatalf("fatal: bad delimiters argument: %s. expected \"left:right\"", delimsStr)
-		}
-		t = t.Delims(delims[0], delims[1])
-	}
-
-	vars := newTemplateVariables(ctx)
-
-	for _, file := range ctx.Args() {
-		dryrun := ctx.Bool("--dryrun")
-		overwrite := ctx.Bool("--overwrite")
-		templateExecute(t, file, vars, dryrun, overwrite)
+		panic(fmt.Errorf("render template error, caused:\n\n   %v\n", err))
 	}
 }
 
 func main() {
-	app := cli.NewApp("frep", "Transform template file using environment, arguments, json/yaml files")
+	app := cli.NewApp()
+	app.Name = "frep"
+	app.Version = "0.0.0"
+	app.Usage = "Generate file using template"
+	app.UsageText = "[options] input-file[:output-file] ..."
+	app.Authors = "Guoqiang Chen <subchen@gmail.com>"
 
-	app.Flag("-e, --env", "set variable name=value, can be passed multiple times").Multiple()
-	app.Flag("--json", "load variables from json object").Placeholder("string")
-	app.Flag("--load", "load variables from json/yaml files").Multiple()
-	app.Flag("--overwrite", "overwrite if destination file exists").Bool()
-	app.Flag("--delims", `template tag delimiters`).Default("{{:}}")
-	app.Flag("--dryrun", "output result to console instead of file").Bool()
+	app.Flags = []*cli.Flag{
+		{
+			Name:        "e, env",
+			Usage:       "set variable name=value, can be passed multiple times",
+			PlaceHolder: "name=value",
+			Value:       &EnvironList,
+		},
+		{
+			Name:        "json",
+			Usage:       "load variables from json object string",
+			PlaceHolder: "jsonstring",
+			Value:       &JsonStr,
+		},
+		{
+			Name:        "load",
+			Usage:       "load variables from json/yaml/toml file",
+			PlaceHolder: "file",
+			Value:       &LoadFileList,
+		},
+		{
+			Name:  "overwrite",
+			Usage: "overwrite if destination file exists",
+			Value: &Overwrite,
+		},
+		{
+			Name:  "dryrun",
+			Usage: "just output result to console instead of file",
+			Value: &Dryrun,
+		},
+		{
+			Name:     "delims",
+			Usage:    "template tag delimiters",
+			DefValue: "{{:}}",
+			Value:    &Delims,
+		},
+	}
 
-	if BuildVersion == "" {
-		app.Version = "0.0.0"
-	} else {
-		app.Version = func() {
-			fmt.Printf("Version: %s-%s\n", BuildVersion, BuildGitRev)
-			fmt.Printf("Go version: %s\n", runtime.Version())
-			fmt.Printf("Git commit: %s\n", BuildGitCommit)
-			fmt.Printf("Built: %s\n", BuildDate)
-			fmt.Printf("OS/Arch: %s/%s\n", runtime.GOOS, runtime.GOARCH)
+	app.Examples = strings.TrimSpace(`
+frep nginx.conf.in -e webroot=/usr/share/nginx/html -e port=8080
+frep nginx.conf.in:/etc/nginx.conf -e webroot=/usr/share/nginx/html -e port=8080
+frep nginx.conf.in --json '{"webroot": "/usr/share/nginx/html", "port": 8080}'
+frep nginx.conf.in --load config.json --overwrite
+`)
+
+	if BuildVersion != "" {
+		app.Version = BuildVersion + "-" + BuildGitRev
+		app.BuildGitCommit = BuildGitCommit
+		app.BuildDate = BuildDate
+	}
+
+	app.Action = func(c *cli.Context) {
+		if c.NArg() == 0 {
+			c.ShowHelp()
+			return
+		}
+
+		defer func() {
+			if err := recover(); err != nil {
+				os.Stderr.WriteString(fmt.Sprintf("fatal: %v\n", err))
+				os.Exit(1)
+			}
+		}()
+
+		t := template.New("noname").Funcs(sprig.TxtFuncMap())
+		if Delims != "" {
+			pairs := strings.Split(Delims, ":")
+			if len(pairs) != 2 {
+				panic(fmt.Errorf("bad delimiters argument: %s. expected \"left:right\"", Delims))
+			}
+			t = t.Delims(pairs[0], pairs[1])
+		}
+
+		vars := newTemplateVariables()
+
+		for _, file := range c.Args() {
+			templateExecute(t, file, vars)
 		}
 	}
 
-	app.Usage = func() {
-		fmt.Println("Usage: frep [OPTIONS] input-file:[output-file] ...")
-		fmt.Println("   or: frep [ --version | --help ]")
-	}
-
-	app.MoreHelp = func() {
-		fmt.Println("Examples:")
-		fmt.Println("  frep nginx.conf.in -e webroot=/usr/share/nginx/html -e port=8080")
-		fmt.Println("  frep nginx.conf.in:/etc/nginx.conf -e webroot=/usr/share/nginx/html -e port=8080")
-		fmt.Println("  frep nginx.conf.in --json '{\"webroot\": \"/usr/share/nginx/html\", \"port\": 8080}'")
-		fmt.Println("  frep nginx.conf.in --load context.json --overwrite")
-	}
-
-	app.AllowArgumentCount(1, -1)
-
-	app.Execute = cliExecute
-
-	app.Run()
+	app.Run(os.Args)
 }

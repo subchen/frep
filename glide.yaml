@@ -4,8 +4,6 @@ import:
   version: 2.11.0
 - package: github.com/go-yaml/yaml
   version: v2
-- package: github.com/subchen/goutils
-  subpackages:
-  - cli
 - package: github.com/BurntSushi/toml
   version: v0.3.0
+- package: github.com/subchen/go-cli
