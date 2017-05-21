@@ -142,19 +142,19 @@ func main() {
 		{
 			Name:        "e, env",
 			Usage:       "set variable name=value, can be passed multiple times",
-			PlaceHolder: "name=value",
+			Placeholder: "name=value",
 			Value:       &EnvironList,
 		},
 		{
 			Name:        "json",
 			Usage:       "load variables from json object string",
-			PlaceHolder: "jsonstring",
+			Placeholder: "jsonstring",
 			Value:       &JsonStr,
 		},
 		{
 			Name:        "load",
 			Usage:       "load variables from json/yaml/toml file",
-			PlaceHolder: "file",
+			Placeholder: "file",
 			Value:       &LoadFileList,
 		},
 		{
