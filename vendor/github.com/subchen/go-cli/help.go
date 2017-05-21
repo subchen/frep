@@ -215,9 +215,9 @@ func makeFlagLabel(f *Flag) string {
 	value := ""
 	if !f.IsBool {
 		if f.NoOptDefValue != "" {
-			value = " [" + f.PlaceHolder + "]"
+			value = " [" + f.Placeholder + "]"
 		} else {
-			value = " " + f.PlaceHolder
+			value = " " + f.Placeholder
 		}
 	}
 

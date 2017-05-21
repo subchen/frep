@@ -11,7 +11,7 @@ import (
 type Flag struct {
 	Name        string // name as it appears on command line
 	Usage       string // help message
-	PlaceHolder string // placeholder in usage
+	Placeholder string // placeholder in usage
 	Hidden      bool   // allow flags to be hidden from help/usage text
 
 	IsBool        bool   // if the flag is bool value
@@ -96,8 +96,8 @@ func (f *Flag) initialize() {
 		}
 	}
 
-	if f.PlaceHolder == "" {
-		f.PlaceHolder = "value"
+	if f.Placeholder == "" {
+		f.Placeholder = "value"
 	}
 
 	for _, name := range strings.Split(f.EnvVar, ",") {
