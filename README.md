@@ -14,7 +14,7 @@ USAGE:
    frep [options] input-file[:output-file] ...
 
 VERSION:
-   1.2.1-61
+   1.2.1-62
 
 AUTHORS:
    Guoqiang Chen <subchen@gmail.com>
@@ -41,7 +41,7 @@ EXAMPLES:
 - Linux
 
     ```
-    curl -fSL https://github.com/subchen/frep/releases/download/v1.2.1/frep-1.2.1-darwin-amd64 -o /usr/local/bin/frep
+    curl -fSL https://github.com/subchen/frep/releases/download/v1.2.1/frep-1.2.1-linux-amd64 -o /usr/local/bin/frep
     chmod +x /usr/local/bin/frep
     ```
 
