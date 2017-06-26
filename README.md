@@ -38,6 +38,8 @@ EXAMPLES:
 
 ## Downloads
 
+v1.2.1 Release: https://github.com/subchen/frep/releases/tag/v1.2.1
+
 - Linux
 
     ```
