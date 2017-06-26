@@ -59,7 +59,7 @@ type HelpContext struct {
 	Examples    string
 	Flags       []*Flag
 	Commands    []*Command
-	Hidden      bool
+	FlagsAlign  bool
 }
 
 func newAppHelpContext(name string, app *App) *HelpContext {
@@ -73,10 +73,11 @@ func newAppHelpContext(name string, app *App) *HelpContext {
 		Examples:    app.Examples,
 		Flags:       app.Flags,
 		Commands:    app.Commands,
+		FlagsAlign:  app.FlagsAlign,
 	}
 }
 
-func newCommandHelpContext(name string, cmd *Command) *HelpContext {
+func newCommandHelpContext(name string, cmd *Command, app *App) *HelpContext {
 	return &HelpContext{
 		Name:        name,
 		Usage:       cmd.Usage,
@@ -85,7 +86,7 @@ func newCommandHelpContext(name string, cmd *Command) *HelpContext {
 		Examples:    cmd.Examples,
 		Flags:       cmd.Flags,
 		Commands:    cmd.Commands,
-		Hidden:      cmd.Hidden,
+		FlagsAlign:  app.FlagsAlign,
 	}
 }
 
@@ -168,7 +169,7 @@ func (c *HelpContext) VisibleFlagsUsageLines() []string {
 	max := 0
 	flags := c.VisibleFlags()
 	for _, f := range flags {
-		label := makeFlagLabel(f)
+		label := makeFlagLabel(f, c.FlagsAlign)
 		if len(label) > max {
 			max = len(label)
 		}
@@ -176,7 +177,7 @@ func (c *HelpContext) VisibleFlagsUsageLines() []string {
 
 	usageLines := make([]string, 0, len(flags))
 	for _, f := range flags {
-		label := makeFlagLabel(f)
+		label := makeFlagLabel(f, c.FlagsAlign)
 		usage := f.Usage
 		whitespaces := strings.Repeat(" ", max-len(label))
 		if f.DefValue != "" {
@@ -209,7 +210,7 @@ func (c *HelpContext) VisibleCommandsUsageLines() []string {
 	return usageLines
 }
 
-func makeFlagLabel(f *Flag) string {
+func makeFlagLabel(f *Flag, align bool) string {
 	names := f.Names()
 
 	value := ""
@@ -223,14 +224,19 @@ func makeFlagLabel(f *Flag) string {
 
 	labels := make([]string, 0, len(names))
 	for _, name := range names {
-		label := "-" + name + value
+		label := "-" + name
 		if len(name) > 1 {
 			label = "-" + label
 		}
 		labels = append(labels, label)
 	}
 
-	return strings.Join(labels, ", ")
+	str := strings.Join(labels, ", ") + value
+	if align && strings.HasPrefix(str, "--") {
+		str = "    " + str
+	}
+
+	return str
 }
 
 func makeCommandLabel(c *Command) string {

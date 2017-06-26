@@ -3,6 +3,7 @@ package cli
 import (
 	"fmt"
 	"net"
+	"net/url"
 	"os"
 	"strings"
 	"time"
@@ -42,6 +43,9 @@ func (f *Flag) initialize() {
 			f.wrapValue = &stringValue{val}
 		case *[]string:
 			f.wrapValue = &stringSliceValue{val}
+		case *boolValue:
+			f.IsBool = true
+			f.wrapValue = val
 		case *int:
 			f.wrapValue = &intValue{val}
 		case *int8:
@@ -66,8 +70,12 @@ func (f *Flag) initialize() {
 			f.wrapValue = &float32Value{val}
 		case *float64:
 			f.wrapValue = &float64Value{val}
+		case *time.Time:
+			f.wrapValue = &timeValue{val}
 		case *time.Duration:
 			f.wrapValue = &timeDurationValue{val}
+		case *time.Location:
+			f.wrapValue = &timeLocationValue{val}
 		case *net.IP:
 			f.wrapValue = &ipValue{val}
 		case *[]net.IP:
@@ -78,9 +86,10 @@ func (f *Flag) initialize() {
 			f.wrapValue = &ipNetValue{val}
 		case *[]net.IPNet:
 			f.wrapValue = &ipNetSliceValue{val}
-		case *boolValue:
-			f.IsBool = true
-			f.wrapValue = val
+		case *url.URL:
+			f.wrapValue = &urlValue{val}
+		case *[]url.URL:
+			f.wrapValue = &urlSliceValue{val}
 		case Value:
 			f.wrapValue = val
 		default:

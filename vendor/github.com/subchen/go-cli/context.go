@@ -216,7 +216,7 @@ func (c *Context) Args() []string {
 
 func (c *Context) ShowHelp() {
 	if c.command != nil {
-		c.command.ShowHelp(newCommandHelpContext(c.name, c.command))
+		c.command.ShowHelp(newCommandHelpContext(c.name, c.command, c.app))
 	} else {
 		c.app.ShowHelp(newAppHelpContext(c.name, c.app))
 	}
