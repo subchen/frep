@@ -1,6 +1,17 @@
 language: go
 
 go:
-  - 1.8
+- 1.8
 
 script: make build
+
+deploy:
+  provider: releases
+  apikey:
+    secure: BpJynML3iJF6dkSijqZx8YE5V+aZLdX38raP1EUknu7etV+d/UlnBgE5W6p0c62a6N1mzuvwPefJrrNIJspx7puMgBLOjVHEehBSNqxZwss0sr0JKgaOa4dBPq0FvZEnvS5YsfAeSivm601SPWNmkr/4/yJPROd1I8k5dpxFaRJImkD8UivHE5UKeLVSlKYCOoBvlFacP0t2g6m8P5AGikg/mL4UbpXPPoMercgassA6HmbMXWraz+CeqPIT4XKxzRfctFsQRTIAeOwmI/9jCN/kaqutuVxw8uRmON0mKGbfCp2bU/MNhD/qqMcdWzTwtze+sKJrQ7BVDnotooSQDi2e1smFrL8LxRM+J0lIuXJwIFiV1oelze0TggfyF+Vchy3KAI38T0YGLQTWzhKin76PzGxNcGrN/RXLScdUDvxERVQAhNGr0o9aji6LCC3K5HVBrtSnYUBWyacpDSACJCtoALJCvs6UuUBRC/bjc/DJnTv1RTPOvboNLf9iHfR31m3PLiB9ySDjzxLDaOIPeIhOInHRsz3ktkmMztyFDQ+/cgQ08fzJevXmXsX+VMH9hK/d6upstucZC2UNV/pU5Eg10dPlcwPHMYH+OSUb9kAslK6+icgC6hsO0f13mvbdV0wG2XSWV649QhfJFd4/QEvAbw26g0VhSIlcLIVKU1A=
+  file_glob: true
+  file: bin/*
+  skip_cleanup: true
+  on:
+    tags: true
+
