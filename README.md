@@ -14,20 +14,20 @@ USAGE:
    frep [options] input-file[:output-file] ...
 
 VERSION:
-   1.2.0-50
+   1.2.1-61
 
 AUTHORS:
    Guoqiang Chen <subchen@gmail.com>
 
 OPTIONS:
-   -e name=value, --env name=value   set variable name=value, can be passed multiple times
-   --json jsonstring                 load variables from json object string
-   --load file                       load variables from json/yaml/toml file
-   --overwrite                       overwrite if destination file exists
-   --dryrun                          just output result to console instead of file
-   --delims value                    template tag delimiters (default: {{:}})
-   --help                            print this usage
-   --version                         print version information
+   -e, --env name=value    set variable name=value, can be passed multiple times
+       --json jsonstring   load variables from json object string
+       --load file         load variables from json/yaml/toml file
+       --overwrite         overwrite if destination file exists
+       --dryrun            just output result to console instead of file
+       --delims value      template tag delimiters (default: {{:}})
+       --help              print this usage
+       --version           print version information
 
 EXAMPLES:
    frep nginx.conf.in -e webroot=/usr/share/nginx/html -e port=8080
@@ -38,24 +38,24 @@ EXAMPLES:
 
 ## Downloads
 
-- Linux amd64
+- Linux
 
     ```
-    curl -fSL https://raw.githubusercontent.com/subchen/frep/master/bin/1.2.0/frep-linux-amd64 -o /usr/local/bin/frep
+    curl -fSL https://github.com/subchen/frep/releases/download/v1.2.1/frep-1.2.1-darwin-amd64 -o /usr/local/bin/frep
     chmod +x /usr/local/bin/frep
     ```
 
-- MAC OS
+- macOS
 
     ```
-    curl -fSL https://raw.githubusercontent.com/subchen/frep/master/bin/1.2.0/frep-darwin-amd64 -o /usr/local/bin/frep
+    curl -fSL https://github.com/subchen/frep/releases/download/v1.2.1/frep-1.2.1-darwin-amd64 -o /usr/local/bin/frep
     chmod +x /usr/local/bin/frep
     ```
 
 - Windows
 
     ```
-    wget https://raw.githubusercontent.com/subchen/frep/master/bin/1.2.0/frep-windows-amd64.exe
+    wget https://github.com/subchen/frep/releases/download/v1.2.1/frep-1.2.1-windows-amd64.exe
     ```
 
 ## Examples
@@ -95,7 +95,7 @@ EXAMPLES:
       ]
     }
     EOF
-    
+
     frep nginx.conf.in --load config.json
     ```
 
@@ -109,7 +109,7 @@ EXAMPLES:
       - 127.0.0.1:8081
       - 127.0.0.1:8082
     EOF
-    
+
     frep nginx.conf.in --load config.yaml
     ```
 
@@ -124,7 +124,7 @@ EXAMPLES:
        "127.0.0.1:8082"
     ]
     EOF
-    
+
     frep nginx.conf.in --load config.toml
     ```
 
@@ -158,7 +158,7 @@ EXAMPLES:
 
 ## Template
 
-Templates use Golang [text/template](http://golang.org/pkg/text/template/). 
+Templates use Golang [text/template](http://golang.org/pkg/text/template/).
 
 You can access environment variables within a template
 
@@ -197,3 +197,4 @@ upstream backend {
 {{- end }}
 }
 ```
+
