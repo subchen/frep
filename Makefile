@@ -67,7 +67,7 @@ deb: build-linux
 		  -C build/deb/ \
 		  --package ./releases/
 
-md5sum: build rpm deb
+md5sum: build
 	@ for f in $(shell ls ./releases); do \
 		cd $(ROOT)/releases; md5sum "$$f" >> $$f.md5; \
 	done
