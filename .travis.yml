@@ -3,7 +3,7 @@ language: go
 go:
 - 1.8
 
-script: make build
+script: make release
 
 deploy:
   provider: releases
