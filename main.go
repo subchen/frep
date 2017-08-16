@@ -184,9 +184,10 @@ frep nginx.conf.in --load config.json --overwrite
 
 	if BuildVersion != "" {
 		app.Version = BuildVersion + "-" + BuildGitRev
-		app.BuildGitCommit = BuildGitCommit
-		app.BuildDate = BuildDate
 	}
+
+	app.BuildGitCommit = BuildGitCommit
+	app.BuildDate = BuildDate
 
 	app.Action = func(c *cli.Context) {
 		if c.NArg() == 0 {
