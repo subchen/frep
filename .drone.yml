@@ -10,7 +10,7 @@ pipeline:
     commands:
       - go vet
       - go test -cover -coverprofile=coverage.out
-      - BUILD_DATE=$(date "+%Y-%m-%d") go build -a -ldflags "-X main.BuildVersion=${DRONE_TAG} -X main.BuildGitRev=${DRONE_COMMIT} -X main.BuildDate=${BUILD_DATE}"
+      - go build -a -ldflags "-X main.BuildVersion=${DRONE_TAG} -X main.BuildGitRev=${DRONE_COMMIT} -X main.BuildDate=$(date +%Y-%m-%d)"
 
   publish_latest:
     image: plugins/docker
