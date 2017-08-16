@@ -1,0 +1,30 @@
+workspace:
+  base: /go
+  path: src/github.com/subchen/frep
+
+pipeline:
+  test:
+    image: golang:1.8
+    environment:
+      - CGO_ENABLED=0
+    commands:
+      - export DATE=$(date)
+      - go vet
+      - go test -cover -coverprofile=coverage.out
+      - go build -a -ldflags "-X main.BuildVersion=${DRONE_TAG} -X main.BuildGitRev=${DRONE_COMMIT} -X main.BuildDate=${DATE}"
+
+  publish_latest:
+    image: plugins/docker
+    repo: tonglil/frep
+    tags: ["latest", "1"]
+    when:
+      branch: master
+      event: push
+
+  publish_tag:
+    image: plugins/docker
+    repo: tonglil/frep
+    tags: ["latest", "${DRONE_TAG}"]
+    secrets: [docker_username, docker_password]
+    when:
+      event: tag
