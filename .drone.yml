@@ -8,10 +8,10 @@ pipeline:
     environment:
       - CGO_ENABLED=0
     commands:
-      - export DATE=$(date)
+      - export BUILD_DATE=$(date)
       - go vet
       - go test -cover -coverprofile=coverage.out
-      - go build -a -ldflags "-X main.BuildVersion=${DRONE_TAG} -X main.BuildGitRev=${DRONE_COMMIT} -X main.BuildDate=${DATE}"
+      - go build -a -ldflags "-X main.BuildVersion=${DRONE_TAG} -X main.BuildGitRev=${DRONE_COMMIT} -X main.BuildDate=${BUILD_DATE}"
 
   publish_latest:
     image: plugins/docker
