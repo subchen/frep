@@ -10,15 +10,15 @@ pipeline:
     commands:
       - BUILD_DATE=$(date)
       - export BUILD_DATE
-      - printenv
       - go vet
       - go test -cover -coverprofile=coverage.out
-      - BUILD_DATE=$(date) go build -a -ldflags "-X main.BuildVersion=${DRONE_TAG} -X main.BuildGitRev=${DRONE_COMMIT} -X main.BuildDate=${BUILD_DATE}"
+      - go build -a -ldflags "-X main.BuildVersion=${DRONE_TAG} -X main.BuildGitRev=${DRONE_COMMIT} -X main.BuildDate=$BUILD_DATE"
 
   publish_latest:
     image: plugins/docker
     repo: tonglil/frep
     tags: ["latest", "1"]
+    secrets: [docker_username, docker_password]
     when:
       branch: master
       event: push
