@@ -8,7 +8,7 @@ pipeline:
     environment:
       - CGO_ENABLED=0
     commands:
-      - BUILD_DATE=$(date)
+      - BUILD_DATE=$(date "+%Y-%m-%d")
       - export BUILD_DATE
       - go vet
       - go test -cover -coverprofile=coverage.out
