@@ -12,7 +12,7 @@ pipeline:
       - export BUILD_DATE
       - go vet
       - go test -cover -coverprofile=coverage.out
-      - go build -a -ldflags "-X main.BuildVersion=${DRONE_TAG} -X main.BuildGitRev=${DRONE_COMMIT} -X main.BuildDate=$BUILD_DATE"
+      - go build -a -ldflags "-X main.BuildVersion=${DRONE_TAG} -X main.BuildGitRev=${DRONE_COMMIT} -X main.BuildDate=${BUILD_DATE}"
 
   publish_latest:
     image: plugins/docker
