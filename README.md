@@ -14,7 +14,7 @@ USAGE:
    frep [options] input-file[:output-file] ...
 
 VERSION:
-   1.2.1-62
+   1.2.2-62
 
 AUTHORS:
    Guoqiang Chen <subchen@gmail.com>
@@ -38,26 +38,26 @@ EXAMPLES:
 
 ## Downloads
 
-v1.2.1 Release: https://github.com/subchen/frep/releases/tag/v1.2.1
+v1.2.2 Release: https://github.com/subchen/frep/releases/tag/v1.2.2
 
 - Linux
 
     ```
-    curl -fSL https://github.com/subchen/frep/releases/download/v1.2.1/frep-1.2.1-linux-amd64 -o /usr/local/bin/frep
+    curl -fSL https://github.com/subchen/frep/releases/download/v1.2.2/frep-1.2.2-linux-amd64 -o /usr/local/bin/frep
     chmod +x /usr/local/bin/frep
     ```
 
 - macOS
 
     ```
-    curl -fSL https://github.com/subchen/frep/releases/download/v1.2.1/frep-1.2.1-darwin-amd64 -o /usr/local/bin/frep
+    curl -fSL https://github.com/subchen/frep/releases/download/v1.2.2/frep-1.2.2-darwin-amd64 -o /usr/local/bin/frep
     chmod +x /usr/local/bin/frep
     ```
 
 - Windows
 
     ```
-    wget https://github.com/subchen/frep/releases/download/v1.2.1/frep-1.2.1-windows-amd64.exe
+    wget https://github.com/subchen/frep/releases/download/v1.2.2/frep-1.2.2-windows-amd64.exe
     ```
 
 ## Examples
