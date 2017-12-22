@@ -35,12 +35,16 @@ var (
 
 // create template context
 func newTemplateVariables() map[string]interface{} {
-	// ENV
 	vars := make(map[string]interface{})
+
+	// ENV
+	envs := make(map[string]interface{})
 	for _, env := range os.Environ() {
 		kv := strings.SplitN(env, "=", 2)
-		vars[kv[0]] = kv[1]
+		envs[kv[0]] = kv[1]
+		vars[kv[0]] = kv[1] // legacy: use env in root scope
 	}
+	vars["Env"] = envs
 
 	// --json
 	if JsonStr != "" {
@@ -184,9 +188,9 @@ frep nginx.conf.in --load config.json --overwrite
 
 	if BuildVersion != "" {
 		app.Version = BuildVersion + "-" + BuildGitRev
-		app.BuildGitCommit = BuildGitCommit
-		app.BuildDate = BuildDate
 	}
+	app.BuildGitCommit = BuildGitCommit
+	app.BuildDate = BuildDate
 
 	app.Action = func(c *cli.Context) {
 		if c.NArg() == 0 {
