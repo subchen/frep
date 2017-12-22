@@ -165,7 +165,7 @@ Templates use Golang [text/template](http://golang.org/pkg/text/template/).
 You can access environment variables within a template
 
 ```
-ENV.PATH = {{ .PATH }}
+Env.PATH = {{ .Env.PATH }}
 ```
 
 If your template file uses `{{` and `}}` as part of it's syntax,

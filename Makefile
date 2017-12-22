@@ -1,8 +1,6 @@
-ROOT    := $(shell pwd)
+CWD    := $(shell pwd)
 NAME    := frep
-VERSION := $(shell cat VERSION)
-
-GOPATH  := $(ROOT)/../../../../
+VERSION := 1.2.2
 
 LDFLAGS := -s -w \
            -X 'main.BuildVersion=$(VERSION)' \
@@ -23,15 +21,6 @@ glide-vc:
 
 fmt:
 	@ go fmt $(PACKAGES)
-
-vet:
-	@ go vet $(PACKAGES)
-
-test: clean fmt
-	@ go test -v $(PACKAGES) $(ARGS)
-
-run: clean fmt
-	@ go run main.go $(ARGS)
 
 build: \
     build-linux \
@@ -69,7 +58,7 @@ deb: build-linux
 
 md5sum: build
 	@ for f in $(shell ls ./releases); do \
-		cd $(ROOT)/releases; md5sum "$$f" >> $$f.md5; \
+		cd $(CWD)/releases; md5sum "$$f" >> $$f.md5; \
 	done
 
 release: md5sum
