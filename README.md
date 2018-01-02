@@ -50,8 +50,7 @@ v1.2.2 Release: https://github.com/subchen/frep/releases/tag/v1.2.2
 - macOS
 
     ```
-    curl -fSL https://github.com/subchen/frep/releases/download/v1.2.2/frep-1.2.2-darwin-amd64 -o /usr/local/bin/frep
-    chmod +x /usr/local/bin/frep
+    brew install subchen/tap/frep
     ```
 
 - Windows
