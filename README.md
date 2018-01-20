@@ -174,7 +174,18 @@ you can change the template escape characters using the `--delims`.
 frep --delims "<%:%>" ...
 ```
 
-There are some built-in functions as well: https://github.com/Masterminds/sprig
+There are some built-in functions as well: Masterminds/sprig v2.14.1
+- github: https://github.com/Masterminds/sprig
+- doc: http://masterminds.github.io/sprig/
+
+More funcs added:
+- toJson
+- toYaml
+- toToml
+- fileSize
+- fileLastModified
+- fileGetBytes
+- fileGetString
 
 Sample of nginx.conf.in
 

@@ -10,7 +10,6 @@ import (
 	"text/template"
 
 	"github.com/BurntSushi/toml"
-	"github.com/Masterminds/sprig"
 	"github.com/go-yaml/yaml"
 	"github.com/subchen/go-cli"
 )
@@ -37,7 +36,7 @@ var (
 func newTemplateVariables() map[string]interface{} {
 	vars := make(map[string]interface{})
 
-	// ENV
+	// Env
 	envs := make(map[string]interface{})
 	for _, env := range os.Environ() {
 		kv := strings.SplitN(env, "=", 2)
@@ -205,7 +204,7 @@ frep nginx.conf.in --load config.json --overwrite
 			}
 		}()
 
-		t := template.New("noname").Funcs(sprig.TxtFuncMap())
+		t := template.New("noname").Funcs(FuncMap())
 		if Delims != "" {
 			pairs := strings.Split(Delims, ":")
 			if len(pairs) != 2 {
