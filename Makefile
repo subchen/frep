@@ -56,10 +56,10 @@ deb: build-linux
 		  -C build/deb/ \
 		  --package ./releases/
 
-md5sum: build
+sha256sum: build
 	@ for f in $(shell ls ./releases); do \
-		cd $(CWD)/releases; md5sum "$$f" >> $$f.md5; \
+		cd $(CWD)/releases; sha256sum "$$f" >> $$f.sha256; \
 	done
 
-release: md5sum
+release: sha256sum
 
