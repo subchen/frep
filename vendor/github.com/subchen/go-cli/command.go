@@ -65,15 +65,15 @@ func (c *Command) Run(ctx *Context) {
 	}
 
 	// parse cli arguments
-	cli := &commandline{
+	cl := &commandline{
 		flags:    c.Flags,
 		commands: c.Commands,
 	}
 	var err error
 	if c.SkipFlagParsing {
-		cli.args = ctx.args[1:]
+		cl.args = ctx.args[1:]
 	} else {
-		err = cli.parse(ctx.args[1:])
+		err = cl.parse(ctx.args[1:])
 	}
 
 	// build context
@@ -83,7 +83,7 @@ func (c *Command) Run(ctx *Context) {
 		command:  c,
 		flags:    c.Flags,
 		commands: c.Commands,
-		args:     cli.args,
+		args:     cl.args,
 		parent:   ctx,
 	}
 
@@ -98,8 +98,8 @@ func (c *Command) Run(ctx *Context) {
 	}
 
 	// command not found
-	if cli.commands == nil && len(c.Commands) > 0 && len(cli.args) > 0 {
-		cmd := cli.args[0]
+	if cl.command == nil && len(c.Commands) > 0 && len(cl.args) > 0 {
+		cmd := cl.args[0]
 		if c.OnCommandNotFound != nil {
 			c.OnCommandNotFound(newCtx, cmd)
 		} else {
@@ -108,8 +108,8 @@ func (c *Command) Run(ctx *Context) {
 	}
 
 	// run command
-	if cli.command != nil {
-		cli.command.Run(newCtx)
+	if cl.command != nil {
+		cl.command.Run(newCtx)
 		return
 	}
 

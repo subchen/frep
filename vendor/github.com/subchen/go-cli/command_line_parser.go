@@ -20,11 +20,11 @@ func (c *commandline) parse(arguments []string) (err error) {
 			c.args = append(c.args, arguments[i+1:]...)
 			break
 		} else if strings.HasPrefix(arg, "-") {
-			peekNext, err := c.parseOneArg(i, arguments)
+			peekedNext, err := c.parseOneArg(i, arguments)
 			if err != nil {
 				return err
 			}
-			if peekNext {
+			if peekedNext {
 				i++
 			}
 		} else {
@@ -32,9 +32,6 @@ func (c *commandline) parse(arguments []string) (err error) {
 				c.args = append(c.args, arg)
 			} else {
 				c.command = lookupCommand(c.commands, arg)
-				if c.command == nil {
-					return fmt.Errorf("unrecognized command '%s'", arg)
-				}
 				c.args = append(c.args, arguments[i:]...)
 				break
 			}
@@ -80,11 +77,13 @@ func (c *commandline) parseOneArg(i int, arguments []string) (bool, error) {
 		}
 	}
 
-	// remove quote for inline value
-	if strings.HasPrefix(valueInline, "\"") && strings.HasSuffix(valueInline, "\"") {
-		valueInline = valueInline[1 : len(valueInline)-1]
-	} else if strings.HasPrefix(valueInline, "'") && strings.HasSuffix(valueInline, "'") {
-		valueInline = valueInline[1 : len(valueInline)-1]
+	if len(valueInline) > 0 {
+		// remove quote for inline value
+		if strings.HasPrefix(valueInline, "\"") && strings.HasSuffix(valueInline, "\"") {
+			valueInline = valueInline[1 : len(valueInline)-1]
+		} else if strings.HasPrefix(valueInline, "'") && strings.HasSuffix(valueInline, "'") {
+			valueInline = valueInline[1 : len(valueInline)-1]
+		}
 	}
 
 	flag := lookupFlag(c.flags, name)

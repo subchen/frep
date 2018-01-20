@@ -19,7 +19,7 @@ Date Functions
 	- date FORMAT TIME: Format a date, where a date is an integer type or a time.Time type, and
 	  format is a time.Format formatting string.
 	- dateModify: Given a date, modify it with a duration: `date_modify "-1.5h" now`. If the duration doesn't
-	parse, it returns the time unaltered. See `time.ParseDuration` for info on duration strings.
+	  parse, it returns the time unaltered. See `time.ParseDuration` for info on duration strings.
 	- now: Current time.Time, for feeding into date-related functions.
 	- htmlDate TIME: Format a date for use in the value field of an HTML "date" form element.
 	- dateInZone FORMAT TIME TZ: Like date, but takes three arguments: format, timestamp,
@@ -48,6 +48,10 @@ String Functions
 	- randAlpha: Given a length, generate an alphabetic string
 	- randAscii: Given a length, generate a random ASCII string (symbols included)
 	- randNumeric: Given a length, generate a string of digits.
+	- swapcase: SwapCase swaps the case of a string using a word based algorithm. see https://godoc.org/github.com/Masterminds/goutils#SwapCase
+	- shuffle: Shuffle randomizes runes in a string and returns the result. It uses default random source in `math/rand`
+	- snakecase: convert all upper case characters in a string to underscore format.
+	- camelcase: convert all lower case characters behind underscores to upper case character
 	- wrap: Force a line wrap at the given width. `wrap 80 "imagine a longer string"`
 	- wrapWith: Wrap a line at the given length, but using 'sep' instead of a newline. `wrapWith 50, "<br>", $html`
 	- contains: strings.Contains, but with the arguments switched: `contains substr str`. (This simplifies common pipelines)
@@ -57,6 +61,7 @@ String Functions
 	- squote: Wrap string(s) in double quotation marks, does not escape content.
 	- cat: Concatenate strings, separating them by spaces. `cat $a $b $c`.
 	- indent: Indent a string using space characters. `indent 4 "foo\nbar"` produces "    foo\n    bar"
+	- nindent: Indent a string using space characters and prepend a new line. `indent 4 "foo\nbar"` produces "\n    foo\n    bar"
 	- replace: Replace an old with a new in a string: `$name | replace " " "-"`
 	- plural: Choose singular or plural based on length: `len $fish | plural "one anchovy" "many anchovies"`
 	- sha256sum: Generate a hex encoded sha256 hash of the input
@@ -68,7 +73,7 @@ String Slice Functions:
 	- split: strings.Split, but as `split SEP STRING`. The results are returned
 	  as a map with the indexes set to _N, where N is an integer starting from 0.
 	  Use it like this: `{{$v := "foo/bar/baz" | split "/"}}{{$v._0}}` (Prints `foo`)
-    - splitList: strings.Split, but as `split SEP STRING`. The results are returned
+	- splitList: strings.Split, but as `split SEP STRING`. The results are returned
 	  as an array.
 	- toStrings: convert a list to a list of strings. 'list 1 2 3 | toStrings' produces '["1" "2" "3"]'
 	- sortAlpha: sort a list lexicographically.
@@ -84,7 +89,7 @@ Integer Slice Functions:
 Conversions:
 
 	- atoi: Convert a string to an integer. 0 if the integer could not be parsed.
-	- in64: Convert a string or another numeric type to an int64.
+	- int64: Convert a string or another numeric type to an int64.
 	- int: Convert a string or another numeric type to an int.
 	- float64: Convert a string or another numeric type to a float64.
 
@@ -114,7 +119,7 @@ File Paths:
 	- base: Return the last element of a path. https://golang.org/pkg/path#Base
 	- dir: Remove the last element of a path. https://golang.org/pkg/path#Dir
 	- clean: Clean a path to the shortest equivalent name.  (e.g. remove "foo/.."
-	from "foo/../bar.html") https://golang.org/pkg/path#Clean
+	  from "foo/../bar.html") https://golang.org/pkg/path#Clean
 	- ext: https://golang.org/pkg/path#Ext
 	- isAbs: https://golang.org/pkg/path#IsAbs
 

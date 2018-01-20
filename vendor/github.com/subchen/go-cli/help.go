@@ -59,7 +59,6 @@ type HelpContext struct {
 	Examples    string
 	Flags       []*Flag
 	Commands    []*Command
-	FlagsAlign  bool
 }
 
 func newAppHelpContext(name string, app *App) *HelpContext {
@@ -73,7 +72,6 @@ func newAppHelpContext(name string, app *App) *HelpContext {
 		Examples:    app.Examples,
 		Flags:       app.Flags,
 		Commands:    app.Commands,
-		FlagsAlign:  app.FlagsAlign,
 	}
 }
 
@@ -86,7 +84,6 @@ func newCommandHelpContext(name string, cmd *Command, app *App) *HelpContext {
 		Examples:    cmd.Examples,
 		Flags:       cmd.Flags,
 		Commands:    cmd.Commands,
-		FlagsAlign:  app.FlagsAlign,
 	}
 }
 
@@ -154,6 +151,7 @@ func (c *HelpContext) AuthorLines() []string {
 }
 
 func (c *HelpContext) ExampleLines() []string {
+	c.Examples = strings.TrimSpace(c.Examples)
 	if len(c.Examples) == 0 {
 		return nil
 	}
@@ -165,11 +163,24 @@ func (c *HelpContext) ExampleLines() []string {
 }
 
 func (c *HelpContext) VisibleFlagsUsageLines() []string {
+	flags := c.VisibleFlags()
+
+	// long flag is indent if short flag is exists.
+	longIndent := false
+outer:
+	for _, f := range flags {
+		for _, name := range f.Names() {
+			if len(name) == 1 {
+				longIndent = true
+				break outer
+			}
+		}
+	}
+
 	// calc max width for option name
 	max := 0
-	flags := c.VisibleFlags()
 	for _, f := range flags {
-		label := makeFlagLabel(f, c.FlagsAlign)
+		label := makeFlagLabel(f, longIndent)
 		if len(label) > max {
 			max = len(label)
 		}
@@ -177,11 +188,14 @@ func (c *HelpContext) VisibleFlagsUsageLines() []string {
 
 	usageLines := make([]string, 0, len(flags))
 	for _, f := range flags {
-		label := makeFlagLabel(f, c.FlagsAlign)
+		label := makeFlagLabel(f, longIndent)
 		usage := f.Usage
 		whitespaces := strings.Repeat(" ", max-len(label))
 		if f.DefValue != "" {
 			usage = usage + " (default: " + f.DefValue + ")"
+		}
+		if f.EnvVar != "" {
+			usage = usage + " (Env: " + f.EnvVar + ")"
 		}
 		line := fmt.Sprintf("%s%s   %s", label, whitespaces, usage)
 		usageLines = append(usageLines, line)
@@ -210,7 +224,7 @@ func (c *HelpContext) VisibleCommandsUsageLines() []string {
 	return usageLines
 }
 
-func makeFlagLabel(f *Flag, align bool) string {
+func makeFlagLabel(f *Flag, longIndent bool) string {
 	names := f.Names()
 
 	value := ""
@@ -232,7 +246,7 @@ func makeFlagLabel(f *Flag, align bool) string {
 	}
 
 	str := strings.Join(labels, ", ") + value
-	if align && strings.HasPrefix(str, "--") {
+	if longIndent && strings.HasPrefix(str, "--") {
 		str = "    " + str
 	}
 

@@ -112,6 +112,7 @@ func (f *Flag) initialize() {
 	for _, name := range strings.Split(f.EnvVar, ",") {
 		if value, ok := os.LookupEnv(name); ok {
 			f.wrapValue.Set(value)
+			f.Visited = true
 			break
 		}
 	}
@@ -120,7 +121,7 @@ func (f *Flag) initialize() {
 		f.wrapValue.Set(f.DefValue)
 	}
 
-	f.Visited = false
+	f.Visited = false // reset
 }
 
 func (f *Flag) Names() []string {
