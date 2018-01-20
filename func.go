@@ -67,13 +67,13 @@ func toToml(v interface{}) string {
 	return b.String()
 }
 
-func fileSize(file string) os.FileInfo {
-	if info, err := os.Stat(file); err != nil {
+func fileSize(file string) int64 {
+	info, err := os.Stat(file)
+	if err != nil {
 		// Swallow errors inside of a template.
-		return nil
-	} else {
-		return info
+		return -1
 	}
+	return info.Size()
 }
 
 func fileLastModified(file string) time.Time {
