@@ -56,6 +56,11 @@ deb: build-linux
 		  -C build/deb/ \
 		  --package ./releases/
 
+docker:
+	docker login -u subchen -p "$DOCKER_PASSWORD"
+	docker build -t subchen/$(NAME):$(VERSION) .
+	docker push subchen/$(NAME):$(VERSION)
+
 sha256sum: build
 	@ for f in $(shell ls ./releases); do \
 		cd $(CWD)/releases; sha256sum "$$f" >> $$f.sha256; \
