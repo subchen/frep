@@ -59,7 +59,9 @@ deb: build-linux
 docker:
 	docker login -u subchen -p "$(DOCKER_PASSWORD)"
 	docker build -t subchen/$(NAME):$(VERSION) .
+	docker tag subchen/$(NAME):$(VERSION) subchen/$(NAME):latest
 	docker push subchen/$(NAME):$(VERSION)
+	docker push subchen/$(NAME):latest
 
 sha256sum: build
 	@ for f in $(shell ls ./releases); do \
