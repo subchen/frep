@@ -1,9 +1,20 @@
 language: go
 
 go:
-- 1.9
+  - 1.9
+
+env:
+  - secure: ItQNYV9fK2Kcr/opj0edOSlPl8aFF4W5Sg6vS65G76Oh9A3T2nGdXYDq4UhUzzGfitmWeOt35sEWt4KD50CNmV3b0yRrro5B044ESSH7aJR7LBFDqm38ijWRsVGhRxNWtJLKwNoWjv/Fh+Ry++O0AowBHYglwgXus/fwK9rjBJOJQua65i3zIJgtgfe/FV/mgSQEqPqb+tmHICZL8Szh4sR6sLjpDfSJO/rbflnXLBssClz+f41aCcOoGYCUfAbQqEnKdtULK9POJEOhlo1usHU3s4LDQI2wNnrF7UrT9STQfED+cnWdEi7DdZNQDE1i0YM3ccSn89M7HWgFnVPu0RBqGKi6ld8KzUAN3dMiJPjvjxhXeoOHqn940pxxq6wWFaVzaccjnkaHpr6lVfRLkIGuvZOIHQjavO2jIlzpfDWf+XHjIdiAre9ttRtgey1f6+vRfTwA+K0/wm0k3MtzBC529faOZ4WnjIhv9XeaQAsox3QOj5TIKY1087mTZF0IW9L+UPUw8bk8thJdnZfpjkN3CmeQ9u5B9iXdEREhpN0z9jp9N3enfXotFffS/v+shrd7bLg0KF/a0dEiASSwcAXZNa2IQiZwKmvwAciAGc6EJdRKLIBuhsDDwXrcLv9C0uMV3GNDPqUvhyBzJlAOtKje1rARW7eFtcUiJheQriA=
+
+sudo: required
+
+services:
+  - docker
 
 script: make release
+
+after_success:
+  - if [ -n "$TRAVIS_TAG" ]; then make docker; fi
 
 deploy:
   provider: releases
