@@ -59,6 +59,15 @@ v1.3.1 Release: https://github.com/subchen/frep/releases/tag/v1.3.1
     wget https://github.com/subchen/frep/releases/download/v1.3.1/frep-1.3.1-windows-amd64.exe
     ```
 
+## Docker
+
+You can run frep using docker container
+
+```
+docker run -it --rm subchen/frep:1.3.1 --help
+```
+
+
 ## Examples
 
 ### Load template variables
