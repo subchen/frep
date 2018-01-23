@@ -57,7 +57,7 @@ deb: build-linux
 		  --package ./releases/
 
 docker:
-	docker login -u subchen -p "$DOCKER_PASSWORD"
+	docker login -u subchen -p "$(DOCKER_PASSWORD)"
 	docker build -t subchen/$(NAME):$(VERSION) .
 	docker push subchen/$(NAME):$(VERSION)
 
