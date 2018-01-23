@@ -14,7 +14,7 @@ services:
 script: make release
 
 after_success:
-  - if [ -n "$TRAVIS_TAG" ]; then make docker; fi
+  - make docker # if [ -n "$TRAVIS_TAG" ]; then make docker; fi
 
 deploy:
   provider: releases
