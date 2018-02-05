@@ -87,7 +87,15 @@ func newTemplateVariables() map[string]interface{} {
 	// --env
 	for _, env := range EnvironList {
 		kv := strings.SplitN(env, "=", 2)
-		vars[kv[0]] = kv[1]
+		
+		// remove quotes for key="value"
+		v := kv[1]
+		if strings.HasPrefix(v, "\"") && strings.HasSuffix(v, "\"") {
+			v = v[1 : len(v)-1]
+		} else if strings.HasPrefix(v, "'") && strings.HasSuffix(v, "'") {
+			v = v[1 : len(v)-1]
+		}
+		vars[kv[0]] = v
 	}
 
 	return vars
