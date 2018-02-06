@@ -14,7 +14,7 @@ USAGE:
    frep [options] input-file[:output-file] ...
 
 VERSION:
-   1.3.1-78
+   1.3.2-x
 
 AUTHORS:
    Guoqiang Chen <subchen@gmail.com>
@@ -38,12 +38,12 @@ EXAMPLES:
 
 ## Downloads
 
-v1.3.1 Release: https://github.com/subchen/frep/releases/tag/v1.3.1
+v1.3.2 Release: https://github.com/subchen/frep/releases/tag/v1.3.2
 
 - Linux
 
     ```
-    curl -fSL https://github.com/subchen/frep/releases/download/v1.3.1/frep-1.3.1-linux-amd64 -o /usr/local/bin/frep
+    curl -fSL https://github.com/subchen/frep/releases/download/v1.3.2/frep-1.3.2-linux-amd64 -o /usr/local/bin/frep
     chmod +x /usr/local/bin/frep
     ```
 
@@ -56,7 +56,7 @@ v1.3.1 Release: https://github.com/subchen/frep/releases/tag/v1.3.1
 - Windows
 
     ```
-    wget https://github.com/subchen/frep/releases/download/v1.3.1/frep-1.3.1-windows-amd64.exe
+    wget https://github.com/subchen/frep/releases/download/v1.3.2/frep-1.3.2-windows-amd64.exe
     ```
 
 ## Docker
@@ -64,7 +64,7 @@ v1.3.1 Release: https://github.com/subchen/frep/releases/tag/v1.3.1
 You can run frep using docker container
 
 ```
-docker run -it --rm subchen/frep:1.3.1 --help
+docker run -it --rm subchen/frep:1.3.2 --help
 ```
 
 
