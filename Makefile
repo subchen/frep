@@ -1,6 +1,6 @@
 CWD    := $(shell pwd)
 NAME    := frep
-VERSION := 1.3.2
+VERSION := 1.3.3
 
 LDFLAGS := -s -w \
            -X 'main.BuildVersion=$(VERSION)' \
@@ -17,6 +17,7 @@ clean:
 	@ rm -rf $(NAME) ./releases ./build
 
 glide-vc:
+	@ glide update
 	@ glide-vc --only-code --no-tests --no-legal-files
 
 fmt:

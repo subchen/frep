@@ -14,7 +14,7 @@ USAGE:
    frep [options] input-file[:output-file] ...
 
 VERSION:
-   1.3.2-x
+   1.3.3-x
 
 AUTHORS:
    Guoqiang Chen <subchen@gmail.com>
@@ -34,16 +34,17 @@ EXAMPLES:
    frep nginx.conf.in:/etc/nginx.conf -e webroot=/usr/share/nginx/html -e port=8080
    frep nginx.conf.in --json '{"webroot": "/usr/share/nginx/html", "port": 8080}'
    frep nginx.conf.in --load config.json --overwrite
+   echo "{{ .Env.PATH }}"  | frep -
 ```
 
 ## Downloads
 
-v1.3.2 Release: https://github.com/subchen/frep/releases/tag/v1.3.2
+v1.3.3 Release: https://github.com/subchen/frep/releases/tag/v1.3.3
 
 - Linux
 
     ```
-    curl -fSL https://github.com/subchen/frep/releases/download/v1.3.2/frep-1.3.2-linux-amd64 -o /usr/local/bin/frep
+    curl -fSL https://github.com/subchen/frep/releases/download/v1.3.3/frep-1.3.3-linux-amd64 -o /usr/local/bin/frep
     chmod +x /usr/local/bin/frep
     ```
 
@@ -56,7 +57,7 @@ v1.3.2 Release: https://github.com/subchen/frep/releases/tag/v1.3.2
 - Windows
 
     ```
-    wget https://github.com/subchen/frep/releases/download/v1.3.2/frep-1.3.2-windows-amd64.exe
+    wget https://github.com/subchen/frep/releases/download/v1.3.3/frep-1.3.3-windows-amd64.exe
     ```
 
 ## Docker
@@ -64,7 +65,7 @@ v1.3.2 Release: https://github.com/subchen/frep/releases/tag/v1.3.2
 You can run frep using docker container
 
 ```
-docker run -it --rm subchen/frep:1.3.2 --help
+docker run -it --rm subchen/frep:1.3.3 --help
 ```
 
 
@@ -138,7 +139,21 @@ docker run -it --rm subchen/frep:1.3.2 --help
     frep nginx.conf.in --load config.toml
     ```
 
-### Output
+### Input/Output
+
+- Input from file
+
+    ```
+    // input file: nginx.conf
+    frep nginx.conf.in
+    ```
+
+- Input from console(stdin)
+
+    ```
+    // input from stdin pipe
+    echo "{{ .Env.PATH }}" | frep -
+    ```
 
 - Output to default file (Removed last file ext)
 
@@ -154,10 +169,11 @@ docker run -it --rm subchen/frep:1.3.2 --help
     frep nginx.conf.in:/etc/nginx.conf --overwrite -e port=8080
     ```
 
-- Output to console
+- Output to console(stdout)
 
     ```
     frep nginx.conf.in --dryrun
+    frep nginx.conf.in:-
     ```
 
 - Output multiple files
