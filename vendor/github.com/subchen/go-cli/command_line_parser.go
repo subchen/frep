@@ -19,7 +19,7 @@ func (c *commandline) parse(arguments []string) (err error) {
 		if arg == "--" {
 			c.args = append(c.args, arguments[i+1:]...)
 			break
-		} else if strings.HasPrefix(arg, "-") {
+		} else if strings.HasPrefix(arg, "-") && arg != "-" {
 			peekedNext, err := c.parseOneArg(i, arguments)
 			if err != nil {
 				return err

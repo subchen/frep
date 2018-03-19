@@ -42,7 +42,7 @@ func (c *Context) Global() *Context {
 func (c *Context) IsSet(name string) bool {
 	f := lookupFlag(c.flags, name)
 	if f != nil {
-		return f.Visited
+		return f.visited
 	}
 	return false
 }
@@ -210,6 +210,10 @@ func (c *Context) NArg() int {
 	return len(c.args)
 }
 
+func (c *Context) Arg(n int) string {
+	return c.args[n]
+}
+
 func (c *Context) Args() []string {
 	return c.args
 }
@@ -222,9 +226,29 @@ func (c *Context) ShowHelp() {
 	}
 }
 
+func (c *Context) ShowHelpAndExit(code int) {
+	c.ShowHelp()
+	os.Exit(code)
+}
+
 func (c *Context) ShowError(err error) {
 	w := os.Stderr
 	fmt.Fprintln(w, err)
 	fmt.Fprintln(w, fmt.Sprintf("\nRun '%s --help' for more information", c.name))
 	os.Exit(1)
+}
+
+func (c *Context) actionPanicHandler() {
+	if e := recover(); e != nil {
+		if c.app.ActionPanicHandler != nil {
+			err, ok := e.(error)
+			if !ok {
+				err = fmt.Errorf("%v", e)
+			}
+			c.app.ActionPanicHandler(c, err)
+		} else {
+			os.Stderr.WriteString(fmt.Sprintf("fatal: %v\n", e))
+		}
+		os.Exit(1)
+	}
 }

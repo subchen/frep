@@ -1,14 +1,14 @@
 hash: bd84bf8f41ace1a18ad1957794a67e72576062a3d9f477f3da4273be064e3236
-updated: 2018-01-20T04:15:54.863422549Z
+updated: 2018-03-19T08:50:34.560270042Z
 imports:
 - name: github.com/aokoli/goutils
   version: 3391d3790d23d03408670993e957e8f408993c34
 - name: github.com/BurntSushi/toml
   version: b26d9c308763d68093482582cea63d69be07a0f0
 - name: github.com/go-yaml/yaml
-  version: d670f9405373e636a5a2765eea47fac0c9bc91a4
+  version: 7f97868eec74b32b0982dd158a51a446d1da7eb5
 - name: github.com/huandu/xstrings
-  version: 37469d0c81a7910b49d64a0d308ded4823e90937
+  version: 2bf18b218c51864a87384c06996e40ff9dcff8e1
 - name: github.com/imdario/mergo
   version: 7fe0c75c13abdee74b09fcacef5ea1c6bba6a874
 - name: github.com/Masterminds/semver
@@ -18,9 +18,9 @@ imports:
 - name: github.com/satori/go.uuid
   version: f58768cc1a7a7e77a3bd49e98cdd21419399b6a3
 - name: github.com/subchen/go-cli
-  version: 76320d2346eb6057539c4775657933ecdc3af58c
+  version: 9ff4ff1ae6bd4d4e8e6bd9f0608f3465966cd3ae
 - name: golang.org/x/crypto
-  version: 9477e0b78b9ac3d0b03822fd95422e2fe07627cd
+  version: c3a3ad6d03f7a915c0f7e194b7152974bb73d287
   subpackages:
   - pbkdf2
   - scrypt

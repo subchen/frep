@@ -2,7 +2,6 @@ package cli
 
 import (
 	"fmt"
-	"os"
 	"strings"
 )
 
@@ -93,8 +92,7 @@ func (c *Command) Run(ctx *Context) {
 
 	// show --help
 	if newCtx.GetBool("help") {
-		newCtx.ShowHelp()
-		os.Exit(0)
+		newCtx.ShowHelpAndExit(0)
 	}
 
 	// command not found
@@ -114,10 +112,10 @@ func (c *Command) Run(ctx *Context) {
 	}
 
 	if c.Action != nil {
+		defer newCtx.actionPanicHandler()
 		c.Action(newCtx)
 	} else {
-		newCtx.ShowHelp()
-		os.Exit(0)
+		newCtx.ShowHelpAndExit(0)
 	}
 }
 

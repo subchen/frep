@@ -45,6 +45,9 @@ type App struct {
 
 	// Execute this function if the proper command cannot be found
 	OnCommandNotFound func(*Context, string)
+
+	// Handler if panic in app.Action() and command.Action()
+	ActionPanicHandler func(c *Context, err error)
 }
 
 func NewApp() *App {
@@ -104,8 +107,7 @@ func (a *App) Run(arguments []string) {
 
 	// show --help
 	if newCtx.GetBool("help") {
-		newCtx.ShowHelp()
-		os.Exit(0)
+		newCtx.ShowHelpAndExit(0)
 	}
 	// show --version
 	if newCtx.GetBool("version") {
@@ -130,9 +132,9 @@ func (a *App) Run(arguments []string) {
 	}
 
 	if a.Action != nil {
+		defer newCtx.actionPanicHandler()
 		a.Action(newCtx)
 	} else {
-		newCtx.ShowHelp()
-		os.Exit(0)
+		newCtx.ShowHelpAndExit(0)
 	}
 }

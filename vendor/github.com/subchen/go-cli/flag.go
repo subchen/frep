@@ -20,10 +20,10 @@ type Flag struct {
 	NoOptDefValue string // default value (as text); if the flag is on the command line without any options
 	EnvVar        string // default value load from environ
 
-	Value   interface{} // returns final value
-	Visited bool        // If the user set the value
+	Value interface{} // returns final value
 
 	wrapValue Value // returns final value, wrapped Flag.Value
+	visited   bool  // If the user set the value
 }
 
 // Value is the interface to the dynamic value stored in a flag.
@@ -110,18 +110,19 @@ func (f *Flag) initialize() {
 	}
 
 	for _, name := range strings.Split(f.EnvVar, ",") {
+		name = strings.TrimSpace(name)
 		if value, ok := os.LookupEnv(name); ok {
 			f.wrapValue.Set(value)
-			f.Visited = true
+			f.visited = true
 			break
 		}
 	}
 
-	if !f.Visited && f.DefValue != "" {
+	if !f.visited && f.DefValue != "" {
 		f.wrapValue.Set(f.DefValue)
 	}
 
-	f.Visited = false // reset
+	f.visited = false // reset
 }
 
 func (f *Flag) Names() []string {
@@ -133,7 +134,7 @@ func (f *Flag) Names() []string {
 }
 
 func (f *Flag) SetValue(value string) error {
-	f.Visited = true
+	f.visited = true
 	return f.wrapValue.Set(value)
 }
 
