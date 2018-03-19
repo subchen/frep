@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"path/filepath"
 	"strings"
 	"text/template"
 
@@ -109,20 +108,34 @@ func templateExecute(t *template.Template, file string, ctx interface{}) {
 	if len(filePair) == 2 {
 		destFile = filePair[1]
 	} else {
-		if pos := strings.LastIndex(srcFile, "."); pos == -1 {
+		if srcFile == "-" {
+			destFile = srcFile
+		} else if pos := strings.LastIndex(srcFile, "."); pos == -1 {
 			destFile = srcFile
 		} else {
 			destFile = srcFile[0:pos]
 		}
 	}
 
-	tmpl, err := t.ParseFiles(srcFile)
+	var err error
+	var templateBytes []byte
+
+	if srcFile == "-" {
+		templateBytes, err = ioutil.ReadAll(os.Stdin)
+	} else {
+		templateBytes, err = ioutil.ReadFile(srcFile)
+	}
+	if err != nil {
+		panic(fmt.Errorf("unable to read from %v, caused:\n\n   %v\n", srcFile, err))
+	}
+
+	tmpl, err := t.Parse(string(templateBytes))
 	if err != nil {
 		panic(fmt.Errorf("unable to parse template file, caused:\n\n   %v\n", err))
 	}
 
 	dest := os.Stdout
-	if !Dryrun {
+	if !Dryrun && destFile != "-" {
 		if !Overwrite {
 			if _, err := os.Stat(destFile); err == nil {
 				panic(fmt.Errorf("unable overwrite destination file: %s", destFile))
@@ -136,7 +149,7 @@ func templateExecute(t *template.Template, file string, ctx interface{}) {
 		defer dest.Close()
 	}
 
-	err = tmpl.ExecuteTemplate(dest, filepath.Base(srcFile), ctx)
+	err = tmpl.Execute(dest, ctx)
 	if err != nil {
 		panic(fmt.Errorf("render template error, caused:\n\n   %v\n", err))
 	}
@@ -191,6 +204,7 @@ frep nginx.conf.in -e webroot=/usr/share/nginx/html -e port=8080
 frep nginx.conf.in:/etc/nginx.conf -e webroot=/usr/share/nginx/html -e port=8080
 frep nginx.conf.in --json '{"webroot": "/usr/share/nginx/html", "port": 8080}'
 frep nginx.conf.in --load config.json --overwrite
+echo "{{ .Env.PATH }}"  | frep -
 `)
 
 	if BuildVersion != "" {
