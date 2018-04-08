@@ -21,7 +21,11 @@ glide-vc:
 	@ glide-vc --only-code --no-tests --no-legal-files
 
 fmt:
-	@ go fmt $(PACKAGES)
+	@ go list -f "{{range .GoFiles}}{{$$.Dir}}/{{.}} {{end}} {{range .TestGoFiles}}{{$$.Dir}}/{{.}} {{end}}" ./... | xargs goimports -w
+	@ go fmt ./...
+
+lint:
+	@ go vet ./...
 
 build: \
     build-linux \
