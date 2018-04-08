@@ -19,6 +19,7 @@ glide-vc:
 	@ glide-vc --only-code --no-tests --no-legal-files
 
 fmt:
+	# find . -type f -name '*.go' -not -path "./vendor/*" | xargs goimports -w
 	@ go list -f "{{range .GoFiles}}{{$$.Dir}}/{{.}} {{end}} {{range .TestGoFiles}}{{$$.Dir}}/{{.}} {{end}}" ./... | xargs goimports -w
 	@ go fmt ./...
 
