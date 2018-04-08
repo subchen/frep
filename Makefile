@@ -8,8 +8,6 @@ LDFLAGS := -s -w \
            -X 'main.BuildGitCommit=$(shell git describe --abbrev=0 --always)' \
            -X 'main.BuildDate=$(shell date -u -R)'
 
-PACKAGES := $(shell go list ./... | grep -v /vendor/)
-
 default:
 	@ echo "no default target for Makefile"
 
