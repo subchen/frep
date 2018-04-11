@@ -11,7 +11,11 @@ sudo: required
 services:
   - docker
 
-script: make release
+before_script:
+  - go get golang.org/x/tools/cmd/goimports
+
+script:
+  - make release
 
 after_success:
   - if [ -n "$TRAVIS_TAG" ]; then make docker; fi
