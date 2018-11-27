@@ -1,0 +1,17 @@
+class Frep < Formula
+  desc "Generate file using template from environment, arguments, json/yaml/toml config files"
+  homepage "https://github.com/subchen/frep"
+  url "https://github.com/subchen/frep/releases/download/v{{.VERSION}}/frep-{{.VERSION}}-darwin-amd64"
+  version "{{ .VERSION }}"
+  sha256 "{{ printf "_releases/frep-%s-darwin-amd64" .VERSION | sha256sum }}"
+
+  bottle :unneeded
+
+  def install
+    bin.install "frep-{{ .VERSION }}-darwin-amd64" => "frep"
+  end
+
+  def test
+    system "frep --version"
+  end
+end

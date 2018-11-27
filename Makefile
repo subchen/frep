@@ -14,7 +14,7 @@ default:
 	@ echo "no default target for Makefile"
 
 clean:
-	@ rm -rf $(NAME) ./releases ./build
+	@ rm -rf $(NAME) ./_releases ./_build
 
 glide-vc:
 	@ glide update
@@ -29,33 +29,48 @@ build: \
     build-windows
 
 build-linux: clean fmt
-	@ GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o releases/$(NAME)-$(VERSION)-linux-amd64
+	@ GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o _releases/$(NAME)-$(VERSION)-linux-amd64
 
 build-darwin: clean fmt
-	@ GOOS=darwin GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o releases/$(NAME)-$(VERSION)-darwin-amd64
+	@ GOOS=darwin GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o _releases/$(NAME)-$(VERSION)-darwin-amd64
 
 build-windows: clean fmt
-	@ GOOS=windows GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o releases/$(NAME)-$(VERSION)-windows-amd64.exe
+	@ GOOS=windows GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o _releases/$(NAME)-$(VERSION)-windows-amd64.exe
 
 rpm: build-linux
-	@ mkdir -p build/rpm/usr/local/bin/
-	@ cp -f releases/$(NAME)-$(VERSION)-linux-amd64 build/rpm/usr/local/bin/$(NAME)
+	@ mkdir -p _build/rpm/usr/local/bin/
+	@ cp -f _releases/$(NAME)-$(VERSION)-linux-amd64 _build/rpm/usr/local/bin/$(NAME)
 	@ fpm -s dir -t rpm --name $(NAME) --version $(VERSION) --iteration $(shell git rev-list HEAD --count) \
 		  --maintainer "subchen@gmail.com" --vendor "Guoqiang Chen" --license "Apache 2" \
 		  --url "https://github.com/subchen/frep" \
 		  --description "Generate file using template" \
-		  -C build/rpm/ \
-		  --package ./releases/
+		  -C _build/rpm/ \
+		  --package ./_releases/
 
 deb: build-linux
-	@ mkdir -p build/deb/usr/local/bin/
-	@ cp -f releases/$(NAME)-$(VERSION)-linux-amd64 build/deb/usr/local/bin/$(NAME)
+	@ mkdir -p _build/deb/usr/local/bin/
+	@ cp -f _releases/$(NAME)-$(VERSION)-linux-amd64 _build/deb/usr/local/bin/$(NAME)
 	@ fpm -s dir -t deb --name $(NAME) --version $(VERSION) --iteration $(shell git rev-list HEAD --count) \
 		  --maintainer "subchen@gmail.com" --vendor "Guoqiang Chen" --license "Apache 2" \
 		  --url "https://github.com/subchen/frep" \
 		  --description "Generate file using template" \
-		  -C build/deb/ \
-		  --package ./releases/
+		  -C _build/deb/ \
+		  --package ./_releases/
+
+homebrew: build-darwin
+	rm -rf homebrew-tap
+	git clone https://$(GITHUB_TOKEN)@github.com/subchen/homebrew-tap.git
+
+	go run *.go --overwrite \
+	   -e VERSION=$(VERSION) \
+	   homebrew-formula/frep.rb.gotmpl:homebrew-tap/Formula/frep.rb
+
+	cd homebrew-tap \
+	   && git config user.name "Guoqiang Chen" \
+	   && git config user.email "subchen@gmail.com" \
+	   && git add ./Formula/frep.rb \
+	   && git commit -m "Automatic update frep to $(VERSION)" \
+	   && git push origin master
 
 docker:
 	docker login -u subchen -p "$(DOCKER_PASSWORD)"
@@ -65,9 +80,8 @@ docker:
 	docker push subchen/$(NAME):latest
 
 sha256sum: build
-	@ for f in $(shell ls ./releases); do \
-		cd $(CWD)/releases; sha256sum "$$f" >> $$f.sha256; \
+	@ for f in $(shell ls ./_releases); do \
+		cd $(CWD)/_releases; sha256sum "$$f" >> $$f.sha256; \
 	done
 
-release: sha256sum
-
+release: build sha256sum homebrew docker
