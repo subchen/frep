@@ -14,6 +14,9 @@ sudo: required
 services:
   - docker
 
+before_script:
+  - go get golang.org/x/tools/cmd/goimports
+
 script:
   - make build
 

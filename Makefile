@@ -1,4 +1,4 @@
-CWD    := $(shell pwd)
+CWD     := $(shell pwd)
 NAME    := frep
 VERSION := 1.3.3
 
@@ -7,8 +7,6 @@ LDFLAGS := -s -w \
            -X 'main.BuildGitRev=$(shell git rev-list HEAD --count)' \
            -X 'main.BuildGitCommit=$(shell git describe --abbrev=0 --always)' \
            -X 'main.BuildDate=$(shell date -u -R)'
-
-PACKAGES := $(shell go list ./... | grep -v /vendor/)
 
 default:
 	@ echo "no default target for Makefile"
@@ -21,7 +19,12 @@ glide-vc:
 	@ glide-vc --only-code --no-tests --no-legal-files
 
 fmt:
-	@ go fmt $(PACKAGES)
+	# find . -type f -name '*.go' -not -path "./vendor/*" | xargs goimports -w
+	@ go list -f "{{range .GoFiles}}{{$$.Dir}}/{{.}} {{end}} {{range .TestGoFiles}}{{$$.Dir}}/{{.}} {{end}}" ./... | xargs goimports -w
+	@ go fmt ./...
+
+lint:
+	@ go vet ./...
 
 build: \
     build-linux \
