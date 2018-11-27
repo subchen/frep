@@ -33,7 +33,7 @@ GITHUB_FILE_SHA=$(curl -sL "$GITHUB_API_BASE/contents/$GITHUB_FILE?ref=$GITHUB_B
 
 cat > /tmp/formula.post << EOF
 {
-    "message": "Update $GITHUB_FILE",
+    "message": "Update $GITHUB_FILE to $APP_VERSION",
     "committer": {
         "name": "Guoqiang Chen",
         "email": "subchen@gmail.com"
