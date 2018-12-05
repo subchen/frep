@@ -207,6 +207,7 @@ More funcs added:
 - toJson
 - toYaml
 - toToml
+- toBool
 - fileSize
 - fileLastModified
 - fileGetBytes
