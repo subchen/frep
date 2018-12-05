@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"os"
+	"strconv"
 	"text/template"
 	"time"
 
@@ -19,12 +20,26 @@ func FuncMap() template.FuncMap {
 	f["toJson"] = toJson
 	f["toYaml"] = toYaml
 	f["toToml"] = toToml
+	f["toBool"] = toBool
 	// file
 	f["fileSize"] = fileSize
 	f["fileLastModified"] = fileLastModified
 	f["fileGetBytes"] = fileGetBytes
 	f["fileGetString"] = fileGetString
 	return f
+}
+
+// to Bool takes a string and converts it to a bool. It will
+// always return a bool, even on parsing error (false).
+// It accepts 1, t, T, TRUE, true, True, 0, f, F, FALSE, false, False.
+//
+// This is designed to be called from a template.
+func toBool(value string) bool {
+	result, err := strconv.ParseBool(value)
+	if err != nil {
+		return false
+	}
+	return result
 }
 
 // toJson takes an interface, marshals it to json, and returns a string. It will
