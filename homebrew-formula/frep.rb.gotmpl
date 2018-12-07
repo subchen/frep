@@ -3,7 +3,7 @@ class Frep < Formula
   homepage "https://github.com/subchen/frep"
   url "https://github.com/subchen/frep/releases/download/v{{.VERSION}}/frep-{{.VERSION}}-darwin-amd64"
   version "{{ .VERSION }}"
-  sha256 "{{ printf "_releases/frep-%s-darwin-amd64" .VERSION | sha256sum }}"
+  sha256 "{{ printf "_releases/frep-%s-darwin-amd64" .VERSION | fileGetString | sha256sum }}"
 
   bottle :unneeded
 
