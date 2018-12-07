@@ -29,7 +29,7 @@ func FuncMap() template.FuncMap {
 	return f
 }
 
-// to Bool takes a string and converts it to a bool. It will
+// toBool takes a string and converts it to a bool. It will
 // always return a bool, even on parsing error (false).
 // It accepts 1, t, T, TRUE, true, True, 0, f, F, FALSE, false, False.
 //
