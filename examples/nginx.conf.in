@@ -1,18 +1,36 @@
-server {
-    listen {{.port}} default_server;
+worker_processes auto;
 
-    root {{ .webroot | default "/usr/share/nginx/html"}};
-    index index.html index.htm;
+events {
+    worker_connections 4096;
+}
 
-    location /api {
-        access_log off;
-        proxy_pass http://backend;
+http {
+    sendfile on;
+    keepalive_timeout 60s;
+    keepalive_requests 8192;
+
+    server {
+        listen {{.port}}
+        server_name localhost;
+
+        root {{ .webroot | default "/usr/share/nginx/html"}};
+        index index.html index.htm;
+
+        location /api {
+            access_log off;
+            proxy_pass http://backend;
+            proxy_http_version 1.1;
+            proxy_set_header Connection "keep-alive";
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
     }
-}
-upstream backend {
-    ip_hash;
-{{- range .servers }}
-    server {{.}};
-{{- end }}
-}
 
+    upstream backend {
+        ip_hash;
+    {{- range .servers }}
+        server {{.}};
+    {{- end }}
+        keepalive 1024; // recommend this equals to tomcat.maxKeepAliveRequests
+    }
+
+}
