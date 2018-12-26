@@ -28,7 +28,7 @@ http {
     # Tuning
     server_tokens off;
     sendfile on;
-    keepalive_timeout 60s;
+    keepalive_timeout 300s;
     keepalive_requests 8192;
 
     server {
