@@ -32,7 +32,7 @@ build: \
     build-windows
 
 build-linux: clean fmt
-	@ GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o _releases/$(NAME)-$(VERSION)-linux-amd64
+	@ CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -ldflags "$(LDFLAGS)" -o _releases/$(NAME)-$(VERSION)-linux-amd64
 
 build-darwin: clean fmt
 	@ GOOS=darwin GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o _releases/$(NAME)-$(VERSION)-darwin-amd64
