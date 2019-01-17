@@ -90,7 +90,9 @@ releases: build sha256sum homebrew docker
 
 releases_in_docker:
 	docker run --rm -it \
-	  -v $(CWD):/workspace \
+	  -v $(shell pwd):/workspace \
+	  -v $(shell which docker):/usr/local/bin/docker \
+	  -v /var/run/docker.sock:/var/run/docker.sock \
 	  -e GITHUB_TOKEN=$(GITHUB_TOKEN) \
 	  -e DOCKER_PASSWORD=$(DOCKER_PASSWORD) \
 	  --workdir /workspace \
