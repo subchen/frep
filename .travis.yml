@@ -1,7 +1,7 @@
 language: go
 
 go:
-  - 1.9
+  - 1.11
 
 env:
   global:
@@ -15,14 +15,11 @@ sudo: required
 services:
   - docker
 
-before_script:
-  - go get golang.org/x/tools/cmd/goimports
-
 script:
-  - make build
+  - make build-linux
 
 after_success:
-  - if [ -n "$TRAVIS_TAG" ]; then make release; fi
+  - if [ -n "$TRAVIS_TAG" ]; then make releases_in_docker; fi
 
 deploy:
   provider: releases

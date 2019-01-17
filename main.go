@@ -16,6 +16,7 @@ import (
 // version
 var (
 	BuildVersion   string
+	BuildGitBranch string
 	BuildGitRev    string
 	BuildGitCommit string
 	BuildDate      string
@@ -207,11 +208,13 @@ frep nginx.conf.in --load config.json --overwrite
 echo "{{ .Env.PATH }}"  | frep -
 `)
 
-	if BuildVersion != "" {
-		app.Version = BuildVersion + "-" + BuildGitRev
+	app.Version = BuildVersion
+	app.BuildInfo = &cli.BuildInfo{
+		GitBranch:   BuildGitBranch,
+		GitCommit:   BuildGitCommit,
+		GitRevCount: BuildGitRev,
+		Timestamp:   BuildDate,
 	}
-	app.BuildGitCommit = BuildGitCommit
-	app.BuildDate = BuildDate
 
 	app.Action = func(c *cli.Context) {
 		if c.NArg() == 0 {

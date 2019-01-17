@@ -4,8 +4,9 @@ VERSION := 1.3.4
 
 LDFLAGS := -s -w \
            -X 'main.BuildVersion=$(VERSION)' \
-           -X 'main.BuildGitRev=$(shell git rev-list HEAD --count)' \
-           -X 'main.BuildGitCommit=$(shell git describe --abbrev=0 --always)' \
+           -X 'main.BuildGitBranch=$(shell git describe --all)' \
+           -X 'main.BuildGitRev=$(shell git rev-list --count HEAD)' \
+           -X 'main.BuildGitCommit=$(shell git rev-parse HEAD)' \
            -X 'main.BuildDate=$(shell date -u -R)'
 
 default:
@@ -14,13 +15,7 @@ default:
 clean:
 	@ rm -rf $(NAME) ./_releases ./_build
 
-glide-vc:
-	@ glide update
-	@ glide-vc --only-code --no-tests --no-legal-files
-
 fmt:
-	# find . -type f -name '*.go' -not -path "./vendor/*" | xargs goimports -w
-	@ go list -f "{{range .GoFiles}}{{$$.Dir}}/{{.}} {{end}} {{range .TestGoFiles}}{{$$.Dir}}/{{.}} {{end}}" ./... | xargs goimports -w
 	@ go fmt ./...
 
 lint:
@@ -29,7 +24,9 @@ lint:
 build: \
     build-linux \
     build-darwin \
-    build-windows
+    build-windows \
+    rpm \
+    deb
 
 build-linux: clean fmt
 	@ CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -ldflags "$(LDFLAGS)" -o _releases/$(NAME)-$(VERSION)-linux-amd64
@@ -87,4 +84,13 @@ sha256sum: build
 		cd $(CWD)/_releases; sha256sum "$$f" >> $$f.sha256; \
 	done
 
-release: build sha256sum homebrew docker
+releases: build sha256sum homebrew docker
+
+releases_in_docker:
+	docker run --rm -it \
+	  -v $(CWD):/workspace \
+	  -e GITHUB_TOKEN=$(GITHUB_TOKEN) \
+	  -e DOCKER_PASSWORD=$(DOCKER_PASSWORD) \
+	  --workdir /workspace \
+	  subchen/centos:7-dev \
+	  make releases
