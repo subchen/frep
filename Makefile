@@ -9,6 +9,8 @@ LDFLAGS := -s -w \
            -X 'main.BuildGitCommit=$(shell git rev-parse HEAD)' \
            -X 'main.BuildDate=$(shell date -u -R)'
 
+export GO111MODULE=on
+
 default:
 	@ echo "no default target for Makefile"
 
