@@ -29,22 +29,24 @@ var (
 	LoadFileList []string
 	Overwrite    bool
 	Dryrun       bool
+	Noenv		 bool = true
 	Delims       string
 )
 
 // create template context
-func newTemplateVariables() map[string]interface{} {
-	vars := make(map[string]interface{})
+func newTemplateVariables(noenv bool) map[string]interface{} {
+
+	var vars= make(map[string]interface{})
 
 	// Env
-	envs := make(map[string]interface{})
-	for _, env := range os.Environ() {
-		kv := strings.SplitN(env, "=", 2)
-		envs[kv[0]] = kv[1]
-		vars[kv[0]] = kv[1] // legacy: use env in root scope
+	if noenv == false {
+		envs := make(map[string]interface{})
+		for _, env := range os.Environ() {
+			kv := strings.SplitN(env, "=", 2)
+			envs[kv[0]] = kv[1]
+		}
+		vars["Env"] = envs
 	}
-	vars["Env"] = envs
-
 	// --json
 	if JsonStr != "" {
 		var obj map[string]interface{}
@@ -77,9 +79,8 @@ func newTemplateVariables() map[string]interface{} {
 			} else {
 				panic(fmt.Errorf("bad file type: %s", file))
 			}
-
-			for k, v := range obj {
-				vars[k] = v
+			for k,v :=range obj{
+				vars[k]=v
 			}
 		}
 	}
@@ -98,7 +99,9 @@ func newTemplateVariables() map[string]interface{} {
 		vars[kv[0]] = v
 	}
 
-	return vars
+	var dvars = map[string]interface{}{}
+	dvars["Values"]=vars
+	return dvars
 }
 
 func templateExecute(t *template.Template, file string, ctx interface{}) {
@@ -193,6 +196,11 @@ func main() {
 			Value: &Dryrun,
 		},
 		{
+			Name:  "noenv",
+			Usage: "not include environments, default false",
+			Value: &Noenv,
+		},
+		{
 			Name:     "delims",
 			Usage:    "template tag delimiters",
 			DefValue: "{{:}}",
@@ -238,7 +246,7 @@ echo "{{ .Env.PATH }}"  | frep -
 			t = t.Delims(pairs[0], pairs[1])
 		}
 
-		vars := newTemplateVariables()
+		vars := newTemplateVariables(c.IsSet("noenv"))
 
 		for _, file := range c.Args() {
 			templateExecute(t, file, vars)
