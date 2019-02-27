@@ -29,14 +29,14 @@ var (
 	LoadFileList []string
 	Overwrite    bool
 	Dryrun       bool
-	Noenv		 bool = true
+	Noenv        bool
 	Delims       string
 )
 
 // create template context
 func newTemplateVariables(noenv bool) map[string]interface{} {
 
-	var vars= make(map[string]interface{})
+	var vars = make(map[string]interface{})
 
 	// Env
 	if noenv == false {
@@ -47,6 +47,7 @@ func newTemplateVariables(noenv bool) map[string]interface{} {
 		}
 		vars["Env"] = envs
 	}
+
 	// --json
 	if JsonStr != "" {
 		var obj map[string]interface{}
@@ -79,8 +80,8 @@ func newTemplateVariables(noenv bool) map[string]interface{} {
 			} else {
 				panic(fmt.Errorf("bad file type: %s", file))
 			}
-			for k,v :=range obj{
-				vars[k]=v
+			for k, v := range obj {
+				vars[k] = v
 			}
 		}
 	}
@@ -99,9 +100,7 @@ func newTemplateVariables(noenv bool) map[string]interface{} {
 		vars[kv[0]] = v
 	}
 
-	var dvars = map[string]interface{}{}
-	dvars["Values"]=vars
-	return dvars
+	return vars
 }
 
 func templateExecute(t *template.Template, file string, ctx interface{}) {
@@ -196,7 +195,7 @@ func main() {
 			Value: &Dryrun,
 		},
 		{
-			Name:  "noenv",
+			Name:  "no-env",
 			Usage: "not include environments, default false",
 			Value: &Noenv,
 		},
