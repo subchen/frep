@@ -15,49 +15,62 @@ default:
 	@ echo "no default target for Makefile"
 
 clean:
-	@ rm -rf $(NAME) ./_releases ./_build
+	rm -rf $(NAME) ./_releases ./_build
 
 fmt:
-	@ go fmt ./...
+	go fmt ./...
 
 lint:
-	@ go vet ./...
+	go vet ./...
 
-build: \
+build-all: \
     build-linux \
     build-darwin \
     build-windows \
     rpm \
     deb
 
+build: build-$(shell go env GOOS)
+
 build-linux: clean fmt
-	@ CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -ldflags "$(LDFLAGS)" -o _releases/$(NAME)-$(VERSION)-linux-amd64
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
+		go build -a -installsuffix cgo -ldflags "$(LDFLAGS)" -o _releases/$(NAME)-$(VERSION)-linux-amd64
 
 build-darwin: clean fmt
-	@ GOOS=darwin GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o _releases/$(NAME)-$(VERSION)-darwin-amd64
+	GOOS=darwin GOARCH=amd64 \
+		go build -ldflags "$(LDFLAGS)" -o _releases/$(NAME)-$(VERSION)-darwin-amd64
 
 build-windows: clean fmt
-	@ GOOS=windows GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o _releases/$(NAME)-$(VERSION)-windows-amd64.exe
+	GOOS=windows GOARCH=amd64 \
+		go build -ldflags "$(LDFLAGS)" -o _releases/$(NAME)-$(VERSION)-windows-amd64.exe
 
 rpm: build-linux
-	@ mkdir -p _build/rpm/usr/local/bin/
-	@ cp -f _releases/$(NAME)-$(VERSION)-linux-amd64 _build/rpm/usr/local/bin/$(NAME)
-	@ fpm -s dir -t rpm --name $(NAME) --version $(VERSION) --iteration $(shell git rev-list HEAD --count) \
-		  --maintainer "subchen@gmail.com" --vendor "Guoqiang Chen" --license "Apache 2" \
-		  --url "https://github.com/subchen/frep" \
-		  --description "Generate file using template" \
-		  -C _build/rpm/ \
-		  --package ./_releases/
+	mkdir -p _build/rpm/usr/local/bin/
+	cp -f _releases/$(NAME)-$(VERSION)-linux-amd64 _build/rpm/usr/local/bin/$(NAME)
+
+	docker run --rm -it \
+		-v $(shell pwd):/workspace --workdir /workspace \
+		subchen/centos:7-dev \
+		fpm -s dir -t rpm --name $(NAME) --version $(VERSION) --iteration $(shell git rev-list HEAD --count) \
+			--maintainer "subchen@gmail.com" --vendor "Guoqiang Chen" --license "Apache 2" \
+			--url "https://github.com/subchen/frep" \
+			--description "Generate file using template" \
+			-C _build/rpm/ \
+			--package ./_releases/
 
 deb: build-linux
-	@ mkdir -p _build/deb/usr/local/bin/
-	@ cp -f _releases/$(NAME)-$(VERSION)-linux-amd64 _build/deb/usr/local/bin/$(NAME)
-	@ fpm -s dir -t deb --name $(NAME) --version $(VERSION) --iteration $(shell git rev-list HEAD --count) \
-		  --maintainer "subchen@gmail.com" --vendor "Guoqiang Chen" --license "Apache 2" \
-		  --url "https://github.com/subchen/frep" \
-		  --description "Generate file using template" \
-		  -C _build/deb/ \
-		  --package ./_releases/
+	mkdir -p _build/deb/usr/local/bin/
+	cp -f _releases/$(NAME)-$(VERSION)-linux-amd64 _build/deb/usr/local/bin/$(NAME)
+
+	docker run --rm -it \
+		-v $(shell pwd):/workspace --workdir /workspace \
+		subchen/centos:7-dev \
+		fpm -s dir -t deb --name $(NAME) --version $(VERSION) --iteration $(shell git rev-list HEAD --count) \
+			--maintainer "subchen@gmail.com" --vendor "Guoqiang Chen" --license "Apache 2" \
+			--url "https://github.com/subchen/frep" \
+			--description "Generate file using template" \
+			-C _build/deb/ \
+			--package ./_releases/
 
 homebrew: build-darwin
 	rm -rf homebrew-tap
@@ -86,15 +99,4 @@ sha256sum: build
 		cd $(CWD)/_releases; sha256sum "$$f" >> $$f.sha256; \
 	done
 
-releases: build sha256sum homebrew docker
-
-releases_in_docker:
-	docker run --rm -it \
-	  -v $(shell pwd):/workspace \
-	  -v $(shell which docker):/usr/local/bin/docker \
-	  -v /var/run/docker.sock:/var/run/docker.sock \
-	  -e GITHUB_TOKEN=$(GITHUB_TOKEN) \
-	  -e DOCKER_PASSWORD=$(DOCKER_PASSWORD) \
-	  --workdir /workspace \
-	  subchen/centos:7-dev \
-	  make releases
+release: build sha256sum homebrew docker

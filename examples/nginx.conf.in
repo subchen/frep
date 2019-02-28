@@ -32,10 +32,10 @@ http {
     keepalive_requests 8192;
 
     server {
-        listen {{.port}}
+        listen {{ .port }}
         server_name localhost;
 
-        root {{ .webroot | default "/usr/share/nginx/html"}};
+        root {{ .webroot | default "/usr/share/nginx/html" }};
         index index.html index.htm;
 
         location /api {

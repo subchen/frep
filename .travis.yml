@@ -19,7 +19,7 @@ script:
   - make build-linux
 
 after_success:
-  - if [ -n "$TRAVIS_TAG" ]; then make releases_in_docker; fi
+  - if [ -n "$TRAVIS_TAG" ]; then make release; fi
 
 deploy:
   provider: releases
