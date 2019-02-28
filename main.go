@@ -186,6 +186,11 @@ func main() {
 			Value:       &LoadFileList,
 		},
 		{
+			Name:  "no-sys-env",
+			Usage: "exclude system environments, default false",
+			Value: &NoSysEnv,
+		},
+		{
 			Name:  "overwrite",
 			Usage: "overwrite if destination file exists",
 			Value: &Overwrite,
@@ -194,11 +199,6 @@ func main() {
 			Name:  "dryrun",
 			Usage: "just output result to console instead of file",
 			Value: &Dryrun,
-		},
-		{
-			Name:  "no-sys-env",
-			Usage: "exclude system environments, default false",
-			Value: &NoSysEnv,
 		},
 		{
 			Name:     "delims",

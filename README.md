@@ -23,6 +23,7 @@ OPTIONS:
    -e, --env name=value    set variable name=value, can be passed multiple times
        --json jsonstring   load variables from json object string
        --load file         load variables from json/yaml/toml file
+       --no-sys-env        exclude system environments, default false
        --overwrite         overwrite if destination file exists
        --dryrun            just output result to console instead of file
        --delims value      template tag delimiters (default: {{:}})
