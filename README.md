@@ -14,7 +14,7 @@ USAGE:
    frep [options] input-file[:output-file] ...
 
 VERSION:
-   1.3.5
+   1.3.6
 
 AUTHORS:
    Guoqiang Chen <subchen@gmail.com>
@@ -40,13 +40,20 @@ EXAMPLES:
 
 ## Downloads
 
-v1.3.5 Release: https://github.com/subchen/frep/releases/tag/v1.3.5
+v1.3.6 Release: https://github.com/subchen/frep/releases/tag/v1.3.6
 
 - Linux
 
     ```
-    curl -fSL https://github.com/subchen/frep/releases/download/v1.3.5/frep-1.3.5-linux-amd64 -o /usr/local/bin/frep
+    curl -fSL https://github.com/subchen/frep/releases/download/v1.3.6/frep-1.3.6-linux-amd64 -o /usr/local/bin/frep
     chmod +x /usr/local/bin/frep
+    
+    # centos / redhat
+    yum install https://github.com/subchen/frep/releases/download/v1.3.6/frep-1.3.6-60.x86_64.rpm
+    
+    # ubuntu
+    curl -fSL https://github.com/subchen/frep/releases/download/v1.3.6/frep_1.3.6-60_amd64.deb -o frep_1.3.6-60_amd64.deb
+    dpkg -i frep_1.3.6-60_amd64.deb
     ```
 
 - macOS
@@ -58,7 +65,7 @@ v1.3.5 Release: https://github.com/subchen/frep/releases/tag/v1.3.5
 - Windows
 
     ```
-    wget https://github.com/subchen/frep/releases/download/v1.3.5/frep-1.3.5-windows-amd64.exe
+    wget https://github.com/subchen/frep/releases/download/v1.3.6/frep-1.3.6-windows-amd64.exe
     ```
 
 ## Docker
@@ -66,7 +73,7 @@ v1.3.5 Release: https://github.com/subchen/frep/releases/tag/v1.3.5
 You can run frep using docker container
 
 ```
-docker run -it --rm subchen/frep:1.3.5 --help
+docker run -it --rm subchen/frep --help
 ```
 
 
@@ -218,9 +225,9 @@ Sample of nginx.conf.in
 
 ```
 server {
-    listen {{.port}} default_server;
+    listen {{ .port }} default_server;
 
-    root {{.webroot | default "/usr/share/nginx/html"}};
+    root {{ .webroot | default "/usr/share/nginx/html" }};
     index index.html index.htm;
 
     location /api {
