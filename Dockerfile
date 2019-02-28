@@ -11,7 +11,7 @@ RUN make build-linux
 ###############################
 FROM alpine:3.7
 
-COPY --from=build /go/src/github.com/subchen/frep/releases/frep-* /usr/local/bin/frep
+COPY --from=build /go/src/github.com/subchen/frep/_releases/frep-* /usr/local/bin/frep
 
 ENTRYPOINT [ "/usr/local/bin/frep" ]
 CMD [ "--help" ]
