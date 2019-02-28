@@ -1,5 +1,5 @@
 ###############################
-FROM golang:1.9-alpine AS build
+FROM golang:1.12-alpine AS build
 
 RUN mkdir -p /go/src/github.com/subchen/frep
 COPY . /go/src/github.com/subchen/frep
