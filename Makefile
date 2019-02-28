@@ -94,9 +94,9 @@ docker:
 	docker push subchen/$(NAME):$(VERSION)
 	docker push subchen/$(NAME):latest
 
-sha256sum: build
+sha256sum: build-all
 	@ for f in $(shell ls ./_releases); do \
 		cd $(CWD)/_releases; sha256sum "$$f" >> $$f.sha256; \
 	done
 
-release: build sha256sum homebrew docker
+release: build-all sha256sum homebrew docker
