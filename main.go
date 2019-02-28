@@ -29,21 +29,22 @@ var (
 	LoadFileList []string
 	Overwrite    bool
 	Dryrun       bool
-	Noenv        bool
+	NoSysEnv     bool
 	Delims       string
 )
 
 // create template context
-func newTemplateVariables(noenv bool) map[string]interface{} {
+func newTemplateVariables() map[string]interface{} {
 
 	var vars = make(map[string]interface{})
 
 	// Env
-	if noenv == false {
+	if !NoSysEnv {
 		envs := make(map[string]interface{})
 		for _, env := range os.Environ() {
 			kv := strings.SplitN(env, "=", 2)
-			envs[kv[0]] = kv[1]
+			envs[kv[0]] = kv[1] // .Env.name
+			vars[kv[0]] = kv[1] // override using system env in root scope
 		}
 		vars["Env"] = envs
 	}
@@ -195,9 +196,9 @@ func main() {
 			Value: &Dryrun,
 		},
 		{
-			Name:  "no-env",
-			Usage: "not include environments, default false",
-			Value: &Noenv,
+			Name:  "no-sys-env",
+			Usage: "exclude system environments, default false",
+			Value: &NoSysEnv,
 		},
 		{
 			Name:     "delims",
@@ -245,7 +246,7 @@ echo "{{ .Env.PATH }}"  | frep -
 			t = t.Delims(pairs[0], pairs[1])
 		}
 
-		vars := newTemplateVariables(c.IsSet("noenv"))
+		vars := newTemplateVariables()
 
 		for _, file := range c.Args() {
 			templateExecute(t, file, vars)
