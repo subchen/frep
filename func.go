@@ -29,47 +29,54 @@ func FuncMap() template.FuncMap {
 	return f
 }
 
-// toBool takes a string and converts it to a bool. It will
-// always return a bool, even on parsing error (false).
+// toBool takes a string and converts it to a bool.
+// On marshal error will panic if in strict mode, otherwise returns false.
 // It accepts 1, t, T, TRUE, true, True, 0, f, F, FALSE, false, False.
 //
 // This is designed to be called from a template.
 func toBool(value string) bool {
 	result, err := strconv.ParseBool(value)
 	if err != nil {
+		if Strict {
+			panic(err.Error())
+		}
 		return false
 	}
 	return result
 }
 
-// toJson takes an interface, marshals it to json, and returns a string. It will
-// always return a string, even on marshal error (empty string).
+// toJson takes an interface, marshals it to json, and returns a string.
+// On marshal error will panic if in strict mode, otherwise returns empty string.
 //
 // This is designed to be called from a template.
 func toJson(v interface{}) string {
 	data, err := json.Marshal(v)
 	if err != nil {
-		// Swallow errors inside of a template.
+		if Strict {
+			panic(err.Error())
+		}
 		return ""
 	}
 	return string(data)
 }
 
-// toYaml takes an interface, marshals it to yaml, and returns a string. It will
-// always return a string, even on marshal error (empty string).
+// toYaml takes an interface, marshals it to yaml, and returns a string.
+// On marshal error will panic if in strict mode, otherwise returns empty string.
 //
 // This is designed to be called from a template.
 func toYaml(v interface{}) string {
 	data, err := yaml.Marshal(v)
 	if err != nil {
-		// Swallow errors inside of a template.
+		if Strict {
+			panic(err.Error())
+		}
 		return ""
 	}
 	return string(data)
 }
 
-// toToml takes an interface, marshals it to toml, and returns a string. It will
-// always return a string, even on marshal error (empty string).
+// toToml takes an interface, marshals it to toml, and returns a string.
+// On marshal error will panic if in strict mode, otherwise returns empty string.
 //
 // This is designed to be called from a template.
 func toToml(v interface{}) string {
@@ -77,7 +84,10 @@ func toToml(v interface{}) string {
 	e := toml.NewEncoder(b)
 	err := e.Encode(v)
 	if err != nil {
-		return err.Error()
+		if Strict {
+			panic(err.Error())
+		}
+		return ""
 	}
 	return b.String()
 }
@@ -85,8 +95,10 @@ func toToml(v interface{}) string {
 func fileSize(file string) int64 {
 	info, err := os.Stat(file)
 	if err != nil {
-		// Swallow errors inside of a template.
-		return -1
+		if Strict {
+			panic(err.Error())
+		}
+		return 0
 	}
 	return info.Size()
 }
@@ -94,7 +106,9 @@ func fileSize(file string) int64 {
 func fileLastModified(file string) time.Time {
 	info, err := os.Stat(file)
 	if err != nil {
-		// Swallow errors inside of a template.
+		if Strict {
+			panic(err.Error())
+		}
 		return time.Unix(0, 0)
 	}
 	return info.ModTime()
@@ -103,8 +117,10 @@ func fileLastModified(file string) time.Time {
 func fileGetBytes(file string) []byte {
 	data, err := ioutil.ReadFile(file)
 	if err != nil {
-		// Swallow errors inside of a template.
-		return nil
+		if Strict {
+			panic(err.Error())
+		}
+		return []byte{}
 	}
 	return data
 }
@@ -112,7 +128,9 @@ func fileGetBytes(file string) []byte {
 func fileGetString(file string) string {
 	data, err := ioutil.ReadFile(file)
 	if err != nil {
-		// Swallow errors inside of a template.
+		if Strict {
+			panic(err.Error())
+		}
 		return ""
 	}
 	return string(data)

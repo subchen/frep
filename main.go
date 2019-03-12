@@ -31,6 +31,7 @@ var (
 	Dryrun       bool
 	NoSysEnv     bool
 	Delims       string
+	Strict       bool
 )
 
 // create template context
@@ -199,6 +200,11 @@ func main() {
 			Name:  "dryrun",
 			Usage: "just output result to console instead of file",
 			Value: &Dryrun,
+		},
+		{
+			Name:  "strict",
+			Usage: "exit on any error during template processing",
+			Value: &Strict,
 		},
 		{
 			Name:     "delims",
