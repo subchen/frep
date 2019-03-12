@@ -22,6 +22,7 @@ func FuncMap() template.FuncMap {
 	f["toToml"] = toToml
 	f["toBool"] = toBool
 	// file
+	f["fileExists"] = fileExists
 	f["fileSize"] = fileSize
 	f["fileLastModified"] = fileLastModified
 	f["fileGetBytes"] = fileGetBytes
@@ -90,6 +91,12 @@ func toToml(v interface{}) string {
 		return ""
 	}
 	return b.String()
+}
+
+func fileExists(file string) bool {
+	_, err := os.Stat(file)
+
+	return err == nil
 }
 
 func fileSize(file string) int64 {
