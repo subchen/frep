@@ -243,18 +243,20 @@ echo "{{ .Env.PATH }}"  | frep -
 			}
 		}()
 
-		t := template.New("noname").Funcs(FuncMap())
-		if Delims != "" {
-			pairs := strings.Split(Delims, ":")
-			if len(pairs) != 2 {
-				panic(fmt.Errorf("bad delimiters argument: %s. expected \"left:right\"", Delims))
-			}
-			t = t.Delims(pairs[0], pairs[1])
+		delims := strings.Split(Delims, ":")
+		if len(Delims) < 3 || len(delims) != 2 {
+			panic(fmt.Errorf("bad delimiters argument: %s. expected \"left:right\"", Delims))
 		}
 
-		vars := newTemplateVariables()
-
 		for _, file := range c.Args() {
+			filePair := strings.SplitN(file, ":", 2)
+			srcFile := filePair[0]
+
+			t := template.New(srcFile)
+			t.Delims(delims[0], delims[1])
+
+			vars := newTemplateVariables()
+			t.Funcs(FuncMap(delims, file, vars))
 			templateExecute(t, file, vars)
 		}
 	}

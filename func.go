@@ -9,12 +9,15 @@ import (
 	"text/template"
 	"time"
 
+	"fmt"
 	"github.com/BurntSushi/toml"
 	"github.com/Masterminds/sprig"
 	"github.com/go-yaml/yaml"
+	"path"
+	"strings"
 )
 
-func FuncMap() template.FuncMap {
+func FuncMap(delims []string, file string, ctx interface{}) template.FuncMap {
 	f := sprig.TxtFuncMap()
 	// marshal
 	f["toJson"] = toJson
@@ -27,6 +30,8 @@ func FuncMap() template.FuncMap {
 	f["fileLastModified"] = fileLastModified
 	f["fileGetBytes"] = fileGetBytes
 	f["fileGetString"] = fileGetString
+	// includes
+	f["include"] = include(delims, file, ctx)
 	return f
 }
 
@@ -141,4 +146,55 @@ func fileGetString(file string) string {
 		return ""
 	}
 	return string(data)
+}
+
+type relativeInclude func(include string) string
+
+func include(delims []string, callingFile string, ctx interface{}) relativeInclude {
+	filePair := strings.SplitN(callingFile, ":", 2)
+	callingFile = filePair[0]
+
+	return func(includedFile string) string {
+		if ! path.IsAbs(includedFile) {
+			includedFile = path.Join(path.Dir(callingFile), includedFile)
+		}
+
+		t := template.New(includedFile)
+		if len(delims) == 2 {
+			t.Delims(delims[0], delims[1])
+		}
+		t.Funcs(FuncMap(delims, includedFile, ctx))
+
+		var err error
+		var templateBytes []byte
+
+		templateBytes, err = ioutil.ReadFile(includedFile)
+		if err != nil {
+			if Strict {
+				panic(fmt.Errorf("unable to read from %v, caused:\n\n   %v\n", includedFile, err))
+			}
+			return ""
+		}
+
+		tmpl, err := t.Parse(string(templateBytes))
+		if err != nil {
+			if Strict {
+				panic(fmt.Errorf("unable to parse template file, caused:\n\n   %v\n", err))
+			}
+			return ""
+		}
+
+		var output bytes.Buffer
+		err = tmpl.Execute(&output, ctx)
+
+		if err != nil {
+			if Strict {
+				panic(fmt.Errorf("render template error, caused:\n\n   %v\n", err))
+			}
+			return ""
+		}
+
+		return output.String()
+	}
+
 }
