@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -138,25 +139,33 @@ func templateExecute(t *template.Template, file string, ctx interface{}) {
 		panic(fmt.Errorf("unable to parse template file, caused:\n\n   %v\n", err))
 	}
 
-	dest := os.Stdout
-	if !Dryrun && destFile != "-" {
-		if !Overwrite {
-			if _, err := os.Stat(destFile); err == nil {
-				panic(fmt.Errorf("unable overwrite destination file: %s", destFile))
-			}
-		}
-
-		dest, err = os.Create(destFile)
-		if err != nil {
-			panic(fmt.Errorf("unable to create file, caused:\n\n   %v\n", err))
-		}
-		defer dest.Close()
-	}
-
-	err = tmpl.Execute(dest, ctx)
+	var output bytes.Buffer
+	err = tmpl.Execute(&output, ctx)
 	if err != nil {
 		panic(fmt.Errorf("render template error, caused:\n\n   %v\n", err))
 	}
+
+	dest := os.Stdout
+	if Dryrun || destFile == "-" {
+		dest.Write(output.Bytes())
+		return
+	}
+
+	if !Overwrite {
+		if _, err := os.Stat(destFile); err == nil {
+			panic(fmt.Errorf("unable to overwrite destination file: %s", destFile))
+		}
+	}
+
+	dest, err = os.Create(destFile)
+	if err != nil {
+		panic(fmt.Errorf("unable to create file, caused:\n\n   %v\n", err))
+	}
+	_, err = dest.Write(output.Bytes())
+	if err != nil {
+		panic(fmt.Errorf("unable to write file, caused:\n\n   %v\n", err))
+	}
+	defer dest.Close()
 }
 
 func main() {
