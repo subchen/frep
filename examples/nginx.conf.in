@@ -36,7 +36,7 @@ http {
         server_name localhost;
 
         root {{ .webroot | default "/usr/share/nginx/html" }};
-        index {{ "index.in" | regexReplaceAll "\\.in" ".html" }} index.htm;
+        index {{ "index.in" | reReplaceAll "\\.in" ".html" }} index.htm;
 
         {{ include "locations/api.nginx" | indent 8 | trim }}
 

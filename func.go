@@ -36,9 +36,9 @@ func FuncMap(delims []string, file string, ctx interface{}) template.FuncMap {
 	oRegexReplaceAll := f["regexReplaceAll"].(func(regex string, s string, repl string) string)
 	oRegexReplaceAllLiteral := f["regexReplaceAllLiteral"].(func(regex string, s string, repl string) string)
 	oRegexSplit := f["regexSplit"].(func(regex string, s string, n int) []string)
-	f["regexReplaceAll"] = func(regex string, replacement string, input string) string { return oRegexReplaceAll(regex, input, replacement) }
-	f["regexReplaceAllLiteral"] = func(regex string, replacement string, input string) string { return oRegexReplaceAllLiteral(regex, input, replacement) }
-	f["regexSplit"] = func(regex string, n int, input string) []string { return oRegexSplit(regex, input, n) }
+	f["reReplaceAll"] = func(regex string, replacement string, input string) string { return oRegexReplaceAll(regex, input, replacement) }
+	f["reReplaceAllLiteral"] = func(regex string, replacement string, input string) string { return oRegexReplaceAllLiteral(regex, input, replacement) }
+	f["reSplit"] = func(regex string, n int, input string) []string { return oRegexSplit(regex, input, n) }
 	return f
 }
 
