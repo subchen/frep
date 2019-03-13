@@ -26,6 +26,7 @@ OPTIONS:
        --no-sys-env        exclude system environments, default false
        --overwrite         overwrite if destination file exists
        --dryrun            just output result to console instead of file
+       --strict            exit on any error during template processing
        --delims value      template tag delimiters (default: {{:}})
        --help              print this usage
        --version           print version information
@@ -220,6 +221,12 @@ More funcs added:
 - fileLastModified
 - fileGetBytes
 - fileGetString
+- fileExists
+- include
+- pipeline compatible regex functions from sprig 
+    - reReplaceAll
+    - reReplaceAllLiteral
+    - reSplit
 
 Sample of nginx.conf.in
 
@@ -231,7 +238,7 @@ server {
     index index.html index.htm;
 
     location /api {
-        access_log off;
+        {{ include "shared/log.nginx" | indent 8 | trim }}
         proxy_pass http://backend;
     }
 }
