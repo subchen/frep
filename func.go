@@ -17,7 +17,7 @@ import (
 	"strings"
 )
 
-func FuncMap(delims []string, file string, ctx interface{}) template.FuncMap {
+func FuncMap(templateName string) template.FuncMap {
 	f := sprig.TxtFuncMap()
 	// marshal
 	f["toJson"] = toJson
@@ -30,8 +30,8 @@ func FuncMap(delims []string, file string, ctx interface{}) template.FuncMap {
 	f["fileLastModified"] = fileLastModified
 	f["fileGetBytes"] = fileGetBytes
 	f["fileGetString"] = fileGetString
-	// includes
-	f["include"] = include(delims, file, ctx)
+	// include
+	f["include"] = include(templateName)
 	// Fix sprig regex functions
 	oRegexReplaceAll := f["regexReplaceAll"].(func(regex string, s string, repl string) string)
 	oRegexReplaceAllLiteral := f["regexReplaceAllLiteral"].(func(regex string, s string, repl string) string)
@@ -157,7 +157,7 @@ func fileGetString(file string) string {
 
 type relativeInclude func(include string) string
 
-func include(delims []string, callingFile string, ctx interface{}) relativeInclude {
+func include(callingFile string) relativeInclude {
 	filePair := strings.SplitN(callingFile, ":", 2)
 	callingFile = filePair[0]
 
@@ -167,10 +167,8 @@ func include(delims []string, callingFile string, ctx interface{}) relativeInclu
 		}
 
 		t := template.New(includedFile)
-		if len(delims) == 2 {
-			t.Delims(delims[0], delims[1])
-		}
-		t.Funcs(FuncMap(delims, includedFile, ctx))
+		t.Delims(delims[0], delims[1])
+		t.Funcs(FuncMap(includedFile))
 
 		var err error
 		var templateBytes []byte

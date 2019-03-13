@@ -34,6 +34,12 @@ var (
 	Strict       bool
 )
 
+// template shared context
+var (
+	delims []string
+	ctx interface{}
+)
+
 // create template context
 func newTemplateVariables() map[string]interface{} {
 
@@ -105,7 +111,7 @@ func newTemplateVariables() map[string]interface{} {
 	return vars
 }
 
-func templateExecute(t *template.Template, file string, ctx interface{}) {
+func templateExecute(t *template.Template, file string) {
 	filePair := strings.SplitN(file, ":", 2)
 	srcFile := filePair[0]
 	destFile := ""
@@ -243,11 +249,12 @@ echo "{{ .Env.PATH }}"  | frep -
 			}
 		}()
 
-		delims := strings.Split(Delims, ":")
+		delims = strings.Split(Delims, ":")
 		if len(Delims) < 3 || len(delims) != 2 {
 			panic(fmt.Errorf("bad delimiters argument: %s. expected \"left:right\"", Delims))
 		}
 
+		ctx = newTemplateVariables()
 		for _, file := range c.Args() {
 			filePair := strings.SplitN(file, ":", 2)
 			srcFile := filePair[0]
@@ -255,9 +262,8 @@ echo "{{ .Env.PATH }}"  | frep -
 			t := template.New(srcFile)
 			t.Delims(delims[0], delims[1])
 
-			vars := newTemplateVariables()
-			t.Funcs(FuncMap(delims, file, vars))
-			templateExecute(t, file, vars)
+			t.Funcs(FuncMap(file))
+			templateExecute(t, file)
 		}
 	}
 
