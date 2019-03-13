@@ -32,6 +32,13 @@ func FuncMap(delims []string, file string, ctx interface{}) template.FuncMap {
 	f["fileGetString"] = fileGetString
 	// includes
 	f["include"] = include(delims, file, ctx)
+	// Fix sprig regex functions
+	oRegexReplaceAll := f["regexReplaceAll"].(func(regex string, s string, repl string) string)
+	oRegexReplaceAllLiteral := f["regexReplaceAllLiteral"].(func(regex string, s string, repl string) string)
+	oRegexSplit := f["regexSplit"].(func(regex string, s string, n int) []string)
+	f["regexReplaceAll"] = func(regex string, replacement string, input string) string { return oRegexReplaceAll(regex, input, replacement) }
+	f["regexReplaceAllLiteral"] = func(regex string, replacement string, input string) string { return oRegexReplaceAllLiteral(regex, input, replacement) }
+	f["regexSplit"] = func(regex string, n int, input string) []string { return oRegexSplit(regex, input, n) }
 	return f
 }
 
