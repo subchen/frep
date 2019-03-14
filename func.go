@@ -9,12 +9,15 @@ import (
 	"text/template"
 	"time"
 
+	"fmt"
 	"github.com/BurntSushi/toml"
 	"github.com/Masterminds/sprig"
 	"github.com/go-yaml/yaml"
+	"path"
+	"strings"
 )
 
-func FuncMap() template.FuncMap {
+func FuncMap(templateName string) template.FuncMap {
 	f := sprig.TxtFuncMap()
 	// marshal
 	f["toJson"] = toJson
@@ -22,54 +25,71 @@ func FuncMap() template.FuncMap {
 	f["toToml"] = toToml
 	f["toBool"] = toBool
 	// file
+	f["fileExists"] = fileExists
 	f["fileSize"] = fileSize
 	f["fileLastModified"] = fileLastModified
 	f["fileGetBytes"] = fileGetBytes
 	f["fileGetString"] = fileGetString
+	// include
+	f["include"] = include(templateName)
+	// Fix sprig regex functions
+	oRegexReplaceAll := f["regexReplaceAll"].(func(regex string, s string, repl string) string)
+	oRegexReplaceAllLiteral := f["regexReplaceAllLiteral"].(func(regex string, s string, repl string) string)
+	oRegexSplit := f["regexSplit"].(func(regex string, s string, n int) []string)
+	f["reReplaceAll"] = func(regex string, replacement string, input string) string { return oRegexReplaceAll(regex, input, replacement) }
+	f["reReplaceAllLiteral"] = func(regex string, replacement string, input string) string { return oRegexReplaceAllLiteral(regex, input, replacement) }
+	f["reSplit"] = func(regex string, n int, input string) []string { return oRegexSplit(regex, input, n) }
 	return f
 }
 
-// toBool takes a string and converts it to a bool. It will
-// always return a bool, even on parsing error (false).
+// toBool takes a string and converts it to a bool.
+// On marshal error will panic if in strict mode, otherwise returns false.
 // It accepts 1, t, T, TRUE, true, True, 0, f, F, FALSE, false, False.
 //
 // This is designed to be called from a template.
 func toBool(value string) bool {
 	result, err := strconv.ParseBool(value)
 	if err != nil {
+		if Strict {
+			panic(err.Error())
+		}
 		return false
 	}
 	return result
 }
 
-// toJson takes an interface, marshals it to json, and returns a string. It will
-// always return a string, even on marshal error (empty string).
+// toJson takes an interface, marshals it to json, and returns a string.
+// On marshal error will panic if in strict mode, otherwise returns empty string.
 //
 // This is designed to be called from a template.
 func toJson(v interface{}) string {
 	data, err := json.Marshal(v)
 	if err != nil {
-		// Swallow errors inside of a template.
+		if Strict {
+			panic(err.Error())
+		}
 		return ""
 	}
 	return string(data)
 }
 
-// toYaml takes an interface, marshals it to yaml, and returns a string. It will
-// always return a string, even on marshal error (empty string).
+// toYaml takes an interface, marshals it to yaml, and returns a string.
+// On marshal error will panic if in strict mode, otherwise returns empty string.
 //
 // This is designed to be called from a template.
 func toYaml(v interface{}) string {
 	data, err := yaml.Marshal(v)
 	if err != nil {
-		// Swallow errors inside of a template.
+		if Strict {
+			panic(err.Error())
+		}
 		return ""
 	}
 	return string(data)
 }
 
-// toToml takes an interface, marshals it to toml, and returns a string. It will
-// always return a string, even on marshal error (empty string).
+// toToml takes an interface, marshals it to toml, and returns a string.
+// On marshal error will panic if in strict mode, otherwise returns empty string.
 //
 // This is designed to be called from a template.
 func toToml(v interface{}) string {
@@ -77,16 +97,27 @@ func toToml(v interface{}) string {
 	e := toml.NewEncoder(b)
 	err := e.Encode(v)
 	if err != nil {
-		return err.Error()
+		if Strict {
+			panic(err.Error())
+		}
+		return ""
 	}
 	return b.String()
+}
+
+func fileExists(file string) bool {
+	_, err := os.Stat(file)
+
+	return err == nil
 }
 
 func fileSize(file string) int64 {
 	info, err := os.Stat(file)
 	if err != nil {
-		// Swallow errors inside of a template.
-		return -1
+		if Strict {
+			panic(err.Error())
+		}
+		return 0
 	}
 	return info.Size()
 }
@@ -94,7 +125,9 @@ func fileSize(file string) int64 {
 func fileLastModified(file string) time.Time {
 	info, err := os.Stat(file)
 	if err != nil {
-		// Swallow errors inside of a template.
+		if Strict {
+			panic(err.Error())
+		}
 		return time.Unix(0, 0)
 	}
 	return info.ModTime()
@@ -103,8 +136,10 @@ func fileLastModified(file string) time.Time {
 func fileGetBytes(file string) []byte {
 	data, err := ioutil.ReadFile(file)
 	if err != nil {
-		// Swallow errors inside of a template.
-		return nil
+		if Strict {
+			panic(err.Error())
+		}
+		return []byte{}
 	}
 	return data
 }
@@ -112,8 +147,59 @@ func fileGetBytes(file string) []byte {
 func fileGetString(file string) string {
 	data, err := ioutil.ReadFile(file)
 	if err != nil {
-		// Swallow errors inside of a template.
+		if Strict {
+			panic(err.Error())
+		}
 		return ""
 	}
 	return string(data)
+}
+
+type relativeInclude func(include string) string
+
+func include(callingFile string) relativeInclude {
+	filePair := strings.SplitN(callingFile, ":", 2)
+	callingFile = filePair[0]
+
+	return func(includedFile string) string {
+		if ! path.IsAbs(includedFile) {
+			includedFile = path.Join(path.Dir(callingFile), includedFile)
+		}
+
+		t := template.New(includedFile)
+		t.Delims(delims[0], delims[1])
+		t.Funcs(FuncMap(includedFile))
+
+		var err error
+		var templateBytes []byte
+
+		templateBytes, err = ioutil.ReadFile(includedFile)
+		if err != nil {
+			if Strict {
+				panic(fmt.Errorf("unable to read from %v, caused:\n\n   %v\n", includedFile, err))
+			}
+			return ""
+		}
+
+		tmpl, err := t.Parse(string(templateBytes))
+		if err != nil {
+			if Strict {
+				panic(fmt.Errorf("unable to parse template file, caused:\n\n   %v\n", err))
+			}
+			return ""
+		}
+
+		var output bytes.Buffer
+		err = tmpl.Execute(&output, ctx)
+
+		if err != nil {
+			if Strict {
+				panic(fmt.Errorf("render template error, caused:\n\n   %v\n", err))
+			}
+			return ""
+		}
+
+		return output.String()
+	}
+
 }

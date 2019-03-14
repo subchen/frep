@@ -31,6 +31,13 @@ var (
 	Dryrun       bool
 	NoSysEnv     bool
 	Delims       string
+	Strict       bool
+)
+
+// template shared context
+var (
+	delims []string
+	ctx interface{}
 )
 
 // create template context
@@ -104,7 +111,7 @@ func newTemplateVariables() map[string]interface{} {
 	return vars
 }
 
-func templateExecute(t *template.Template, file string, ctx interface{}) {
+func templateExecute(t *template.Template, file string) {
 	filePair := strings.SplitN(file, ":", 2)
 	srcFile := filePair[0]
 	destFile := ""
@@ -201,6 +208,11 @@ func main() {
 			Value: &Dryrun,
 		},
 		{
+			Name:  "strict",
+			Usage: "exit on any error during template processing",
+			Value: &Strict,
+		},
+		{
 			Name:     "delims",
 			Usage:    "template tag delimiters",
 			DefValue: "{{:}}",
@@ -237,19 +249,21 @@ echo "{{ .Env.PATH }}"  | frep -
 			}
 		}()
 
-		t := template.New("noname").Funcs(FuncMap())
-		if Delims != "" {
-			pairs := strings.Split(Delims, ":")
-			if len(pairs) != 2 {
-				panic(fmt.Errorf("bad delimiters argument: %s. expected \"left:right\"", Delims))
-			}
-			t = t.Delims(pairs[0], pairs[1])
+		delims = strings.Split(Delims, ":")
+		if len(Delims) < 3 || len(delims) != 2 {
+			panic(fmt.Errorf("bad delimiters argument: %s. expected \"left:right\"", Delims))
 		}
 
-		vars := newTemplateVariables()
-
+		ctx = newTemplateVariables()
 		for _, file := range c.Args() {
-			templateExecute(t, file, vars)
+			filePair := strings.SplitN(file, ":", 2)
+			srcFile := filePair[0]
+
+			t := template.New(srcFile)
+			t.Delims(delims[0], delims[1])
+
+			t.Funcs(FuncMap(file))
+			templateExecute(t, file)
 		}
 	}
 
