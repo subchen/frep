@@ -50,11 +50,11 @@ v1.3.7 Release: https://github.com/subchen/frep/releases/tag/v1.3.7
     chmod +x /usr/local/bin/frep
     
     # centos / redhat
-    yum install https://github.com/subchen/frep/releases/download/v1.3.7/frep-1.3.7-60.x86_64.rpm
+    yum install https://github.com/subchen/frep/releases/download/v1.3.7/frep-1.3.7-68.x86_64.rpm
     
     # ubuntu
-    curl -fSL https://github.com/subchen/frep/releases/download/v1.3.7/frep_1.3.7-60_amd64.deb -o frep_1.3.7-60_amd64.deb
-    dpkg -i frep_1.3.7-60_amd64.deb
+    curl -fSL https://github.com/subchen/frep/releases/download/v1.3.7/frep_1.3.7-68_amd64.deb -o frep_1.3.7-68_amd64.deb
+    dpkg -i frep_1.3.7-68_amd64.deb
     ```
 
 - macOS
