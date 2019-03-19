@@ -3,18 +3,18 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"os"
+	"path"
 	"strconv"
+	"strings"
 	"text/template"
 	"time"
 
-	"fmt"
 	"github.com/BurntSushi/toml"
 	"github.com/Masterminds/sprig"
 	"github.com/go-yaml/yaml"
-	"path"
-	"strings"
 )
 
 func FuncMap(templateName string) template.FuncMap {
@@ -30,15 +30,23 @@ func FuncMap(templateName string) template.FuncMap {
 	f["fileLastModified"] = fileLastModified
 	f["fileGetBytes"] = fileGetBytes
 	f["fileGetString"] = fileGetString
+
 	// include
 	f["include"] = include(templateName)
+
 	// Fix sprig regex functions
 	oRegexReplaceAll := f["regexReplaceAll"].(func(regex string, s string, repl string) string)
 	oRegexReplaceAllLiteral := f["regexReplaceAllLiteral"].(func(regex string, s string, repl string) string)
 	oRegexSplit := f["regexSplit"].(func(regex string, s string, n int) []string)
-	f["reReplaceAll"] = func(regex string, replacement string, input string) string { return oRegexReplaceAll(regex, input, replacement) }
-	f["reReplaceAllLiteral"] = func(regex string, replacement string, input string) string { return oRegexReplaceAllLiteral(regex, input, replacement) }
-	f["reSplit"] = func(regex string, n int, input string) []string { return oRegexSplit(regex, input, n) }
+	f["reReplaceAll"] = func(regex string, replacement string, input string) string {
+		return oRegexReplaceAll(regex, input, replacement)
+	}
+	f["reReplaceAllLiteral"] = func(regex string, replacement string, input string) string {
+		return oRegexReplaceAllLiteral(regex, input, replacement)
+	}
+	f["reSplit"] = func(regex string, n int, input string) []string {
+		return oRegexSplit(regex, input, n)
+	}
 	return f
 }
 
@@ -155,14 +163,14 @@ func fileGetString(file string) string {
 	return string(data)
 }
 
-type relativeInclude func(include string) string
+type relativeIncludeFunc func(include string) string
 
-func include(callingFile string) relativeInclude {
+func include(callingFile string) relativeIncludeFunc {
 	filePair := strings.SplitN(callingFile, ":", 2)
 	callingFile = filePair[0]
 
 	return func(includedFile string) string {
-		if ! path.IsAbs(includedFile) {
+		if !path.IsAbs(includedFile) {
 			includedFile = path.Join(path.Dir(callingFile), includedFile)
 		}
 

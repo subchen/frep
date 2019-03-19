@@ -1,5 +1,6 @@
 location /api {
     {{ include "../shared/log.nginx" | indent 4 | trim }}
+
     proxy_http_version 1.1;
     proxy_pass http://backend;
     proxy_redirect off;

@@ -38,7 +38,7 @@ var (
 // template shared context
 var (
 	delims []string
-	ctx interface{}
+	ctx    interface{}
 )
 
 // create template context
@@ -168,11 +168,12 @@ func templateExecute(t *template.Template, file string) {
 	if err != nil {
 		panic(fmt.Errorf("unable to create file, caused:\n\n   %v\n", err))
 	}
+	defer dest.Close()
+
 	_, err = dest.Write(output.Bytes())
 	if err != nil {
 		panic(fmt.Errorf("unable to write file, caused:\n\n   %v\n", err))
 	}
-	defer dest.Close()
 }
 
 func main() {
@@ -270,8 +271,8 @@ echo "{{ .Env.PATH }}"  | frep -
 
 			t := template.New(srcFile)
 			t.Delims(delims[0], delims[1])
-
 			t.Funcs(FuncMap(file))
+
 			templateExecute(t, file)
 		}
 	}
