@@ -212,7 +212,7 @@ There are some built-in functions as well: Masterminds/sprig v2.14.1
 - github: https://github.com/Masterminds/sprig
 - doc: http://masterminds.github.io/sprig/
 
-More funcs added:
+More [funcs](https://github.com/subchen/frep/blob/master/func.go) added:
 - toJson
 - toYaml
 - toToml
@@ -223,6 +223,7 @@ More funcs added:
 - fileGetString
 - fileExists
 - include
+- countRune
 - pipeline compatible regex functions from sprig 
     - reReplaceAll
     - reReplaceAllLiteral
