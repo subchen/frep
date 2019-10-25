@@ -208,7 +208,7 @@ you can change the template escape characters using the `--delims`.
 frep --delims "<%:%>" ...
 ```
 
-There are some built-in functions as well: Masterminds/sprig v2.14.1
+There are some built-in functions as well: Masterminds/sprig v2.22.0
 - github: https://github.com/Masterminds/sprig
 - doc: http://masterminds.github.io/sprig/
 
