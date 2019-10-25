@@ -34,6 +34,11 @@ func FuncMap(templateName string) template.FuncMap {
 	// include
 	f["include"] = include(templateName)
 
+	// strings
+	f["countRune"] = func(s string) int {
+		return len([]rune(s))
+	}
+
 	// Fix sprig regex functions
 	oRegexReplaceAll := f["regexReplaceAll"].(func(regex string, s string, repl string) string)
 	oRegexReplaceAllLiteral := f["regexReplaceAllLiteral"].(func(regex string, s string, repl string) string)
