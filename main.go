@@ -33,6 +33,7 @@ var (
 	NoSysEnv     bool
 	Delims       string
 	Strict       bool
+	Missing      string
 )
 
 // template shared context
@@ -228,6 +229,12 @@ func main() {
 			DefValue: "{{:}}",
 			Value:    &Delims,
 		},
+		{
+			Name:     "missing",
+			Usage:    "handling of missing vars, one of: default/invalid, zero, error",
+			DefValue: "default",
+			Value:    &Missing,
+		},
 	}
 
 	app.Examples = strings.TrimSpace(`
@@ -270,6 +277,7 @@ echo "{{ .Env.PATH }}"  | frep -
 			srcFile := filePair[0]
 
 			t := template.New(srcFile)
+			t.Option(fmt.Sprintf("missingkey=%s", Missing))
 			t.Delims(delims[0], delims[1])
 			t.Funcs(FuncMap(file))
 
