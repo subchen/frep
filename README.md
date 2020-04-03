@@ -28,6 +28,7 @@ OPTIONS:
        --dryrun            just output result to console instead of file
        --strict            exit on any error during template processing
        --delims value      template tag delimiters (default: {{:}})
+       --missing           handling of missing vars, one of: default/invalid, zero, error (default: default)
        --help              print this usage
        --version           print version information
 
@@ -46,15 +47,15 @@ v1.3.7 Release: https://github.com/subchen/frep/releases/tag/v1.3.7
 - Linux
 
     ```
-    curl -fSL https://github.com/subchen/frep/releases/download/v1.3.7/frep-1.3.7-linux-amd64 -o /usr/local/bin/frep
+    curl -fSL https://github.com/subchen/frep/releases/download/v1.3.8/frep-1.3.8-linux-amd64 -o /usr/local/bin/frep
     chmod +x /usr/local/bin/frep
     
     # centos / redhat
-    yum install https://github.com/subchen/frep/releases/download/v1.3.7/frep-1.3.7-68.x86_64.rpm
+    yum install https://github.com/subchen/frep/releases/download/v1.3.8/frep-1.3.8-70.x86_64.rpm
     
     # ubuntu
-    curl -fSL https://github.com/subchen/frep/releases/download/v1.3.7/frep_1.3.7-68_amd64.deb -o frep_1.3.7-68_amd64.deb
-    dpkg -i frep_1.3.7-68_amd64.deb
+    curl -fSL https://github.com/subchen/frep/releases/download/v1.3.8/frep_1.3.8-70_amd64.deb -o frep_1.3.8-70_amd64.deb
+    dpkg -i frep_1.3.8-70_amd64.deb
     ```
 
 - macOS
@@ -66,7 +67,7 @@ v1.3.7 Release: https://github.com/subchen/frep/releases/tag/v1.3.7
 - Windows
 
     ```
-    wget https://github.com/subchen/frep/releases/download/v1.3.7/frep-1.3.7-windows-amd64.exe
+    wget https://github.com/subchen/frep/releases/download/v1.3.8/frep-1.3.8-windows-amd64.exe
     ```
 
 ## Docker
