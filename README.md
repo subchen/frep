@@ -42,7 +42,7 @@ EXAMPLES:
 
 ## Downloads
 
-v1.3.7 Release: https://github.com/subchen/frep/releases/tag/v1.3.7
+v1.3.8 Release: https://github.com/subchen/frep/releases/tag/v1.3.8
 
 - Linux
 
