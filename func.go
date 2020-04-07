@@ -15,6 +15,7 @@ import (
 	"github.com/BurntSushi/toml"
 	"github.com/Masterminds/sprig"
 	"github.com/go-yaml/yaml"
+	"github.com/subchen/frep/pkg/secretsmanager"
 )
 
 func FuncMap(templateName string) template.FuncMap {
@@ -52,7 +53,33 @@ func FuncMap(templateName string) template.FuncMap {
 	f["reSplit"] = func(regex string, n int, input string) []string {
 		return oRegexSplit(regex, input, n)
 	}
+
+	// Add function to get secrets from AWS Secrets Manager
+	f["awsSecret"] = getAWSSecret
+
 	return f
+}
+
+// getAWSSecret return a scret stored in AWS Secret Manager
+// function accepts as parameter the secret name.`
+func getAWSSecret(name string) string {
+	s, err := secretsmanager.New()
+	if err != nil {
+		if Strict {
+			panic(err)
+		}
+		return ""
+	}
+
+	secret, err := s.GetSecret(name)
+	if err != nil {
+		if Strict {
+			panic(err)
+		}
+		return ""
+	}
+
+	return secret
 }
 
 // toBool takes a string and converts it to a bool.
