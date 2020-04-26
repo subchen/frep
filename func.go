@@ -15,7 +15,7 @@ import (
 	"github.com/BurntSushi/toml"
 	"github.com/Masterminds/sprig"
 	"github.com/go-yaml/yaml"
-	"github.com/subchen/frep/pkg/secretsmanager"
+	"github.com/overdrive3000/secretsmanager"
 )
 
 func FuncMap(templateName string) template.FuncMap {
@@ -61,9 +61,27 @@ func FuncMap(templateName string) template.FuncMap {
 }
 
 // getAWSSecret return a scret stored in AWS Secret Manager
-// function accepts as parameter the secret name.`
-func getAWSSecret(name string) string {
-	s, err := secretsmanager.New()
+// function accepts as parameter secret name and secret key.
+// if secret key is not set then will return firt key stored in
+// secret.
+func getAWSSecret(secret ...string) string {
+	var name, key string
+	c := secretsmanager.New(
+		&secretsmanager.AWSConfig{},
+	)
+
+	name = secret[0]
+
+	if len(secret) == 2 {
+		key = secret[1]
+	}
+
+	spec := &secretsmanager.SecretSpec{
+		Name: name,
+		Key:  key,
+	}
+
+	s, err := c.GetSecret(spec)
 	if err != nil {
 		if Strict {
 			panic(err)
@@ -71,15 +89,7 @@ func getAWSSecret(name string) string {
 		return ""
 	}
 
-	secret, err := s.GetSecret(name)
-	if err != nil {
-		if Strict {
-			panic(err)
-		}
-		return ""
-	}
-
-	return secret
+	return s
 }
 
 // toBool takes a string and converts it to a bool.
