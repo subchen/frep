@@ -229,6 +229,7 @@ More [funcs](https://github.com/subchen/frep/blob/master/func.go) added:
     - reReplaceAll
     - reReplaceAllLiteral
     - reSplit
+- awsSecret
 
 Sample of nginx.conf.in
 
@@ -251,4 +252,28 @@ upstream backend {
     server {{.}};
 {{- end }}
 }
+```
+
+Sample using secrets, first of all take into account that in order to use the secret functionality you need to have a proper AWS configuration in place and permissions enough to read secrets from AWS Secrets Manager. More details of how to configure AWSCLI can be found at https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html 
+
+Once you have all the requirements just create a template like this one:
+
+```
+# application.conf
+mysql_host: {{ .mysql_host }}
+mysql_user: {{ .mysql_user }}
+mysql_pass: {{ awsSecret "application/mysql/password" }}
+```
+In above example `mysql_host` and `mysql_user` will be filled as usual by using `frep` config file or environment variables but `mysql_pass` will be fetch straight from AWS Secrets Manager by looking at secret name `application/mysql/password`
+
+If you have multiple items in a single secret you can retrieve an specific key by specifying the key you want in template, for example:
+
+```
+# application.conf
+mysql_host: {{ .mysql_host }}
+mysql_user: {{ .mysql_user }}
+mysql_pass: {{ awsSecret "application/mysql/password" }}
+
+external_api_client: {{ awsSecret "application/external_api" "client_id" }}
+external_api_secret: {{ awsSecret "application/external_api" "secret_key" }}
 ```
