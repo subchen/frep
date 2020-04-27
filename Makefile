@@ -1,6 +1,6 @@
 CWD     := $(shell pwd)
 NAME    := frep
-VERSION := 1.3.8
+VERSION := 1.3.9
 
 LDFLAGS := -s -w \
            -X 'main.BuildVersion=$(VERSION)' \
