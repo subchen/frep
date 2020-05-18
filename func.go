@@ -15,6 +15,7 @@ import (
 	"github.com/BurntSushi/toml"
 	"github.com/Masterminds/sprig"
 	"github.com/go-yaml/yaml"
+	"github.com/ismferd/ssm/package/parameterstore"
 	"github.com/overdrive3000/secretsmanager"
 )
 
@@ -56,6 +57,7 @@ func FuncMap(templateName string) template.FuncMap {
 
 	// Add function to get secrets from AWS Secrets Manager
 	f["awsSecret"] = getAWSSecret
+	f["awsParameterStore"] = getAWSParameterStore
 
 	return f
 }
@@ -90,6 +92,29 @@ func getAWSSecret(secret ...string) string {
 	}
 
 	return s
+}
+
+// getAWSParameterStore return a parameter stored in AWS SSM Parameter Store.
+// function accepts as parameter a names.
+func getAWSParameterStore(parameter string) string {
+
+	c := parameterstore.New(
+		&parameterstore.AWSConfig{},
+	)
+
+	spec := &parameterstore.ParemeterString{
+		Name: parameter,
+	}
+
+	p, err := c.GetParam(spec)
+	if err != nil {
+		if Strict {
+			panic(err)
+		}
+		return ""
+	}
+
+	return p
 }
 
 // toBool takes a string and converts it to a bool.
