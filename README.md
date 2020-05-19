@@ -230,6 +230,7 @@ More [funcs](https://github.com/subchen/frep/blob/master/func.go) added:
     - reReplaceAllLiteral
     - reSplit
 - awsSecret
+- awsParameterStore
 
 Sample of nginx.conf.in
 
@@ -277,3 +278,19 @@ mysql_pass: {{ awsSecret "application/mysql/password" }}
 external_api_client: {{ awsSecret "application/external_api" "client_id" }}
 external_api_secret: {{ awsSecret "application/external_api" "secret_key" }}
 ```
+
+Sample using AWS Parameter Store, first of all take into account that in order to use the ssm functionality you need to have a proper AWS configuration in place and permissions enough to read parameters from AWS Parameter Store. More details of how to configure AWSCLI can be found at https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html 
+
+Once you have all the requirements just create a template like this one:
+
+```
+# application.conf
+mysql_host: {{ .mysql_host }}
+mysql_user: {{ .mysql_user }}
+mysql_pass: {{ awsSecret "application/mysql/password" }}
+mysql_dns: {{ awsParameterStore "application/mysql/dns" }}
+```
+In above example `mysql_dns` will be filled as usual by using `frep` config file or environment variables but `mysql_pass` will be fetch straight from AWS Parameter Store by looking at `application/mysql/dns`
+
+SSM Limitation: You can get parameter from ParameterStore just in textplain.
+
