@@ -50,7 +50,7 @@ rpm: build-linux
 
 	docker run --rm -it \
 		-v $(shell pwd):/workspace --workdir /workspace \
-		subchen/centos:7-dev \
+		subchen/centos:8-dev \
 		fpm -s dir -t rpm --name $(NAME) --version $(VERSION) --iteration $(shell git rev-list HEAD --count) \
 			--maintainer "subchen@gmail.com" --vendor "Guoqiang Chen" --license "Apache 2" \
 			--url "https://github.com/subchen/frep" \
@@ -64,7 +64,7 @@ deb: build-linux
 
 	docker run --rm -it \
 		-v $(shell pwd):/workspace --workdir /workspace \
-		subchen/centos:7-dev \
+		subchen/centos:8-dev \
 		fpm -s dir -t deb --name $(NAME) --version $(VERSION) --iteration $(shell git rev-list HEAD --count) \
 			--maintainer "subchen@gmail.com" --vendor "Guoqiang Chen" --license "Apache 2" \
 			--url "https://github.com/subchen/frep" \
