@@ -1,6 +1,7 @@
 CWD     := $(shell pwd)
 NAME    := frep
 VERSION := 1.3.11
+ARCH    := $(shell uname -m)
 
 LDFLAGS := -s -w \
            -X 'main.BuildVersion=$(VERSION)' \
@@ -33,8 +34,8 @@ build-all: \
 build: build-$(shell go env GOOS)
 
 build-linux: clean fmt
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
-		go build -a -installsuffix cgo -ldflags "$(LDFLAGS)" -o _releases/$(NAME)-$(VERSION)-linux-amd64
+	CGO_ENABLED=0 GOOS=linux GOARCH=$(ARCH) \
+		go build -a -installsuffix cgo -ldflags "$(LDFLAGS)" -o _releases/$(NAME)-$(VERSION)-linux-$(ARCH)
 
 build-darwin: clean fmt
 	GOOS=darwin GOARCH=amd64 \
@@ -46,7 +47,7 @@ build-windows: clean fmt
 
 rpm: build-linux
 	mkdir -p _build/rpm/usr/local/bin/
-	cp -f _releases/$(NAME)-$(VERSION)-linux-amd64 _build/rpm/usr/local/bin/$(NAME)
+	cp -f _releases/$(NAME)-$(VERSION)-linux-$(ARCH) _build/rpm/usr/local/bin/$(NAME)
 
 	docker run --rm -it \
 		-v $(shell pwd):/workspace --workdir /workspace \
@@ -60,7 +61,7 @@ rpm: build-linux
 
 deb: build-linux
 	mkdir -p _build/deb/usr/local/bin/
-	cp -f _releases/$(NAME)-$(VERSION)-linux-amd64 _build/deb/usr/local/bin/$(NAME)
+	cp -f _releases/$(NAME)-$(VERSION)-linux-$(ARCH) _build/deb/usr/local/bin/$(NAME)
 
 	docker run --rm -it \
 		-v $(shell pwd):/workspace --workdir /workspace \
