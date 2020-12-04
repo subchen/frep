@@ -42,20 +42,20 @@ EXAMPLES:
 
 ## Downloads
 
-v1.3.10 Release: https://github.com/subchen/frep/releases/tag/v1.3.10
+v1.3.12 Release: https://github.com/subchen/frep/releases/tag/v1.3.12
 
 - Linux
 
     ```
-    curl -fSL https://github.com/subchen/frep/releases/download/v1.3.10/frep-1.3.10-linux-amd64 -o /usr/local/bin/frep
+    curl -fSL https://github.com/subchen/frep/releases/download/v1.3.12/frep-1.3.12-linux-amd64 -o /usr/local/bin/frep
     chmod +x /usr/local/bin/frep
     
     # centos / redhat
-    yum install https://github.com/subchen/frep/releases/download/v1.3.10/frep-1.3.10-74.x86_64.rpm
+    yum install https://github.com/subchen/frep/releases/download/v1.3.12/frep-1.3.12-74.x86_64.rpm
     
     # ubuntu
-    curl -fSL https://github.com/subchen/frep/releases/download/v1.3.10/frep_1.3.10-74_amd64.deb -o frep_1.3.10-74_amd64.deb
-    dpkg -i frep_1.3.10-74_amd64.deb
+    curl -fSL https://github.com/subchen/frep/releases/download/v1.3.12/frep_1.3.12-74_amd64.deb -o frep_1.3.12-74_amd64.deb
+    dpkg -i frep_1.3.12-74_amd64.deb
     ```
 
 - macOS
@@ -67,7 +67,7 @@ v1.3.10 Release: https://github.com/subchen/frep/releases/tag/v1.3.10
 - Windows
 
     ```
-    wget https://github.com/subchen/frep/releases/download/v1.3.10/frep-1.3.10-windows-amd64.exe
+    wget https://github.com/subchen/frep/releases/download/v1.3.12/frep-1.3.12-windows-amd64.exe
     ```
 
 ## Docker
