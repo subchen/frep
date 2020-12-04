@@ -1,6 +1,6 @@
 CWD     := $(shell pwd)
 NAME    := frep
-VERSION := 1.3.11
+VERSION := 1.3.12
 ARCH    := $(shell uname -m)
 
 ifeq (${ARCH},x86_64)
