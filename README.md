@@ -49,10 +49,10 @@ v1.3.12 Release: https://github.com/subchen/frep/releases/tag/v1.3.12
     ```
     curl -fSL https://github.com/subchen/frep/releases/download/v1.3.12/frep-1.3.12-linux-amd64 -o /usr/local/bin/frep
     chmod +x /usr/local/bin/frep
-    
+
     # centos / redhat
     yum install https://github.com/subchen/frep/releases/download/v1.3.12/frep-1.3.12-74.x86_64.rpm
-    
+
     # ubuntu
     curl -fSL https://github.com/subchen/frep/releases/download/v1.3.12/frep_1.3.12-74_amd64.deb -o frep_1.3.12-74_amd64.deb
     dpkg -i frep_1.3.12-74_amd64.deb
@@ -225,12 +225,13 @@ More [funcs](https://github.com/subchen/frep/blob/master/func.go) added:
 - fileExists
 - include
 - countRune
-- pipeline compatible regex functions from sprig 
+- pipeline compatible regex functions from sprig
     - reReplaceAll
     - reReplaceAllLiteral
     - reSplit
 - awsSecret
 - awsParameterStore
+- base64Decode
 
 Sample of nginx.conf.in
 
@@ -255,7 +256,7 @@ upstream backend {
 }
 ```
 
-Sample using secrets, first of all take into account that in order to use the secret functionality you need to have a proper AWS configuration in place and permissions enough to read secrets from AWS Secrets Manager. More details of how to configure AWSCLI can be found at https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html 
+Sample using secrets, first of all take into account that in order to use the secret functionality you need to have a proper AWS configuration in place and permissions enough to read secrets from AWS Secrets Manager. More details of how to configure AWSCLI can be found at https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html
 
 Once you have all the requirements just create a template like this one:
 
@@ -279,7 +280,7 @@ external_api_client: {{ awsSecret "application/external_api" "client_id" }}
 external_api_secret: {{ awsSecret "application/external_api" "secret_key" }}
 ```
 
-Sample using AWS Parameter Store, first of all take into account that in order to use the ssm functionality you need to have a proper AWS configuration in place and permissions enough to read parameters from AWS Parameter Store. More details of how to configure AWSCLI can be found at https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html 
+Sample using AWS Parameter Store, first of all take into account that in order to use the ssm functionality you need to have a proper AWS configuration in place and permissions enough to read parameters from AWS Parameter Store. More details of how to configure AWSCLI can be found at https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html
 
 Once you have all the requirements just create a template like this one:
 

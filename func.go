@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -21,11 +22,13 @@ import (
 
 func FuncMap(templateName string) template.FuncMap {
 	f := sprig.TxtFuncMap()
+
 	// marshal
-	f["toJson"] = toJson
-	f["toYaml"] = toYaml
-	f["toToml"] = toToml
 	f["toBool"] = toBool
+	f["toJson"] = toJson
+	f["toToml"] = toToml
+	f["toYaml"] = toYaml
+
 	// file
 	f["fileExists"] = fileExists
 	f["fileSize"] = fileSize
@@ -59,12 +62,30 @@ func FuncMap(templateName string) template.FuncMap {
 	f["awsSecret"] = getAWSSecret
 	f["awsParameterStore"] = getAWSParameterStore
 
+	// base64 decode
+	f["base64decode"] = base64Decode
+
 	return f
 }
 
-// getAWSSecret return a scret stored in AWS Secret Manager
+// base64decode return a string encoded in base64
+// On decode error will panic if in strict mode, otherwise returns empty string.
+//
+// This is designed to be called from a template.
+func base64Decode(value string) string {
+	decoded, err := base64.StdEncoding.DecodeString(value)
+	if err != nil {
+		if Strict {
+			panic(err)
+		}
+		return ""
+	}
+	return string(decoded)
+}
+
+// getAWSSecret return a secret stored in AWS Secret Manager
 // function accepts as parameter secret name and secret key.
-// if secret key is not set then will return firt key stored in
+// if secret key is not set then will return first key stored in
 // secret.
 func getAWSSecret(secret ...string) string {
 	var name, key string
