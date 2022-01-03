@@ -7,6 +7,10 @@ ifeq (${ARCH},x86_64)
 ARCH    := amd64
 endif
 
+ifeq (${ARCH},aarch64)
+ARCH    := arm64
+endif
+
 LDFLAGS := -s -w \
            -X 'main.BuildVersion=$(VERSION)' \
            -X 'main.BuildGitBranch=$(shell git describe --all)' \
