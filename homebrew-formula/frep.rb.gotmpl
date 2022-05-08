@@ -3,8 +3,6 @@ class Frep < Formula
   homepage "https://github.com/subchen/frep"
   version "{{ .VERSION }}"
 
-  bottle :unneeded
-
   if Hardware::CPU.intel?
     url "https://github.com/subchen/frep/releases/download/v{{.VERSION}}/frep-{{.VERSION}}-darwin-amd64"
     sha256 "{{ printf "_releases/frep-%s-darwin-amd64" .VERSION | fileGetString | sha256sum }}"
