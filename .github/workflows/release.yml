@@ -7,7 +7,6 @@ on:
 
 jobs:
   release:
-    name: Release
     runs-on: ubuntu-latest
 
     steps:
@@ -23,9 +22,9 @@ jobs:
           ./.github/build/build-rpm.sh
           ./.github/build/build-deb.sh
           ls -l ./_releases/
-    - uses: softprops/action-gh-release@v1
-      with:
-        files: _releases/*
-    - run: |
-        ./.github/build/homebrew-tap-publish.sh
-        ./.github/build/docker-publish.sh
+      - uses: softprops/action-gh-release@v1
+        with:
+          files: _releases/*
+      - run: |
+          ./.github/build/homebrew-tap-publish.sh
+          ./.github/build/docker-publish.sh
