@@ -3,11 +3,10 @@ name: Release
 on:
   push:
     tags:
-      - "v*"
+      - "v*.*.*"
 
 jobs:
-  build:
-    name: Release
+  release:
     runs-on: ubuntu-latest
 
     steps:
