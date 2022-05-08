@@ -19,5 +19,5 @@ cd homebrew-tap \
     && git config user.email "subchen@gmail.com" \
     && git add ./Formula/frep.rb \
     && git commit -m "Automatic update frep to ${VERSION}" \
-    && git remote set-url origin https://${BREW_REPO_GITHUB_TOKEN}@github.com/subchen/homebrew-tap.git
+    && git remote set-url origin https://${BREW_REPO_GITHUB_TOKEN}@github.com/subchen/homebrew-tap.git \
     && git push origin master
