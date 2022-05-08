@@ -28,3 +28,6 @@ jobs:
       - run: |
           ./.github/build/homebrew-tap-publish.sh
           ./.github/build/docker-publish.sh
+        env:
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          BREW_REPO_GITHUB_TOKEN: ${{ secrets.BREW_REPO_GITHUB_TOKEN }}

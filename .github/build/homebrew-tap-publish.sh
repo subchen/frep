@@ -3,6 +3,8 @@
 CWD=$(cd $(dirname $0); cd ../../; pwd)
 VERSION=$(cat $CWD/VERSION)
 
+GITHUB_TOKEN=${BREW_REPO_GITHUB_TOKEN}
+
 rm -rf ./homebrew-tap
 git clone https://${GITHUB_TOKEN}@github.com/subchen/homebrew-tap.git
 
