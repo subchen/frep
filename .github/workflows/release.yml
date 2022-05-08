@@ -18,5 +18,15 @@ jobs:
     - uses: actions/checkout@v3
       with:
         fetch-depth: 0
-    - run: make release-test
-    
+    - run: |
+        env
+        make build-all
+        ./.github/build/build-rpm.sh
+        ./.github/build/build-deb.sh
+#    - uses: softprops/action-gh-release@v1
+#      if: startsWith(github.ref, 'refs/tags/')
+#      with:
+#        files: _releases/*
+#    - run: |
+#        ./.github/build/homebrew-tap-publish.sh
+#        ./.github/build/docker-publish.sh
