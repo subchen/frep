@@ -6,6 +6,12 @@ on:
 #      - "v*.*.*"
   release:
     types: [ published ]
+  push:
+    branches: [ master ]
+
+env:
+  DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+  BREW_REPO_GITHUB_TOKEN: ${{ secrets.BREW_REPO_GITHUB_TOKEN }}
 
 jobs:
   release:
@@ -20,16 +26,17 @@ jobs:
           fetch-depth: 0
       - run: |
           env
-          make build-all
-          ./.github/build/build-rpm.sh
-          ./.github/build/build-deb.sh
-          ls -l ./_releases/
-      - uses: softprops/action-gh-release@v1
-        with:
-          files: _releases/*
-      - run: |
-          ./.github/build/homebrew-tap-publish.sh
-          ./.github/build/docker-publish.sh
-        env:
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-          BREW_REPO_GITHUB_TOKEN: ${{ secrets.BREW_REPO_GITHUB_TOKEN }}
+          echo ${DOCKER_PASSWORD}
+          docker login -u subchen -p "${DOCKER_PASSWORD}"
+      # - run: |
+      #     env
+      #     make build-all
+      #     ./.github/build/build-rpm.sh
+      #     ./.github/build/build-deb.sh
+      #     ls -l ./_releases/
+      # - uses: softprops/action-gh-release@v1
+      #   with:
+      #     files: _releases/*
+      # - run: |
+      #     ./.github/build/homebrew-tap-publish.sh
+      #     ./.github/build/docker-publish.sh
