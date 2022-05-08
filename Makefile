@@ -42,8 +42,8 @@ build-all: clean fmt
 		go build -ldflags "$(LDFLAGS)" -o _releases/frep-$(VERSION)-windows-amd64.exe
 
 
-	sha256sum _releases/frep-$(VERSION)-linux-amd64       > _releases/frep-$(VERSION)-linux-amd64
-	sha256sum _releases/frep-$(VERSION)-linux-arm64       > _releases/frep-$(VERSION)-linux-arm64
-	sha256sum _releases/frep-$(VERSION)-darwin-amd64      > _releases/frep-$(VERSION)-darwin-amd64
-	sha256sum _releases/frep-$(VERSION)-darwin-arm64      > _releases/frep-$(VERSION)-darwin-arm64
-	sha256sum _releases/frep-$(VERSION)-windows-amd64.exe > _releases/frep-$(VERSION)-windows-amd64.exe
+	sha256sum _releases/frep-$(VERSION)-linux-amd64       > _releases/frep-$(VERSION)-linux-amd64.sha256
+	sha256sum _releases/frep-$(VERSION)-linux-arm64       > _releases/frep-$(VERSION)-linux-arm64.sha256
+	sha256sum _releases/frep-$(VERSION)-darwin-amd64      > _releases/frep-$(VERSION)-darwin-amd64.sha256
+	sha256sum _releases/frep-$(VERSION)-darwin-arm64      > _releases/frep-$(VERSION)-darwin-arm64.sha256
+	sha256sum _releases/frep-$(VERSION)-windows-amd64.exe > _releases/frep-$(VERSION)-windows-amd64.exe.sha256
