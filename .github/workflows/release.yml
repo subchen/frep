@@ -1,8 +1,6 @@
 name: Release
 
 on:
-#  release:
-#    types: [ published ]
   push:
     tags:
       - "v*"
@@ -13,21 +11,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/setup-go@v3
+      - uses: actions/setup-go@v3
+        with:
+          go-version: ^1.18
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - run: |
+          env
+          make build-all
+          ./.github/build/build-rpm.sh
+          ./.github/build/build-deb.sh
+          ls -l ./_releases/
+    - uses: softprops/action-gh-release@v1
       with:
-        go-version: ^1.18
-    - uses: actions/checkout@v3
-      with:
-        fetch-depth: 0
+        files: _releases/*
     - run: |
-        env
-        make build-all
-        ./.github/build/build-rpm.sh
-        ./.github/build/build-deb.sh
-        ls -l ./_releases/
-   - uses: softprops/action-gh-release@v1
-     with:
-       files: _releases/*
-   - run: |
-       ./.github/build/homebrew-tap-publish.sh
-       ./.github/build/docker-publish.sh
+        ./.github/build/homebrew-tap-publish.sh
+        ./.github/build/docker-publish.sh
