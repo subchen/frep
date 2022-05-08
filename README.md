@@ -1,4 +1,4 @@
-[![Build Status](https://github.com/subchen/frep/actions/workflows/build.yml/badge.svg)
+[![Build Status](https://github.com/subchen/frep/actions/workflows/build.yml/badge.svg)](https://github.com/subchen/frep/actions/workflows/build.yml)
 [![License](http://img.shields.io/badge/License-Apache_2-red.svg?style=flat)](http://www.apache.org/licenses/LICENSE-2.0)
 
 
