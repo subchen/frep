@@ -1,9 +1,8 @@
 #!/bin/bash -e
 
-VERSION="$1"
-
-GIT_REV=$(git rev-list HEAD --count)
 CWD=$(cd $(dirname $0); cd ../../; pwd)
+VERSION=$(cat $CWD/VERSION)
+GIT_REV=$(git rev-list HEAD --count)
 
 mkdir -p _build/deb/usr/local/bin/
 cp -f _releases/frep-${VERSION}-linux-amd64 _build/deb/usr/local/bin/frep

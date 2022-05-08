@@ -1,6 +1,7 @@
 #!/bin/bash -e
 
-VERSION="$1"
+CWD=$(cd $(dirname $0); cd ../../; pwd)
+VERSION=$(cat $CWD/VERSION)
 
 docker login -u subchen -p "${DOCKER_PASSWORD}"
 

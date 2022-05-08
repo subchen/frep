@@ -1,9 +1,8 @@
 #!/bin/bash -e
 
-VERSION="$1"
-
-GIT_REV=$(git rev-list HEAD --count)
 CWD=$(cd $(dirname $0); cd ../../; pwd)
+VERSION=$(cat $CWD/VERSION)
+GIT_REV=$(git rev-list HEAD --count)
 
 mkdir -p _build/rpm/usr/local/bin/
 cp -f _releases/frep-${VERSION}-linux-amd64 _build/rpm/usr/local/bin/frep
@@ -18,6 +17,7 @@ docker run --rm -it \
         --description "Generate file using template" \
         -C _build/rpm/ \
         --package ./_releases/
+
 
 FILE=./_releases/frep-${VERSION}-${GIT_REV}.x86_64.rpm
 sha256sum $FILE > $FILE.sha256

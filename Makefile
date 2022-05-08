@@ -1,5 +1,5 @@
 CWD     := $(shell pwd)
-VERSION := 1.3.13
+VERSION := $(shell cat VERSION)
 
 LDFLAGS := -s -w \
            -X 'main.BuildVersion=$(VERSION)' \
