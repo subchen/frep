@@ -3,11 +3,8 @@
 CWD=$(cd $(dirname $0); cd ../../; pwd)
 VERSION=$(cat $CWD/VERSION)
 
-GITHUB_TOKEN=${BREW_REPO_GITHUB_TOKEN}
-
 rm -rf ./homebrew-tap
-git clone https://${GITHUB_TOKEN}@github.com/subchen/homebrew-tap.git
-
+git clone https://github.com/subchen/homebrew-tap.git
 
 curl -fSL https://github.com/subchen/frep/releases/download/v1.3.12/frep-1.3.12-linux-amd64 -o ./frep
 chmod +x ./frep
@@ -22,4 +19,5 @@ cd homebrew-tap \
     && git config user.email "subchen@gmail.com" \
     && git add ./Formula/frep.rb \
     && git commit -m "Automatic update frep to ${VERSION}" \
+    && git remote set-url origin https://${BREW_REPO_GITHUB_TOKEN}@github.com/subchen/homebrew-tap.git
     && git push origin master
