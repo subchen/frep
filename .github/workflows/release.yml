@@ -23,7 +23,7 @@ jobs:
         make build-all
         ./.github/build/build-rpm.sh
         ./.github/build/build-deb.sh
-        ls -l ./_release
+        ls -l ./_releases/
 #    - uses: softprops/action-gh-release@v1
 #      if: startsWith(github.ref, 'refs/tags/')
 #      with:
