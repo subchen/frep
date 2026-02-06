@@ -1,0 +1,11 @@
+# This example demonstrates usage of AWS SSM Parameter Store functions.
+# Requires AWS credentials and parameters to be present in SSM.
+
+# Plaintext parameter
+mysql_dns: {{ awsParameterStore "application/mysql/dns" }}
+
+# Encrypted parameter (will be decrypted)
+mysql_encrypted_dns: {{ awsEncryptedParameterStore "application/mysql/encrypted_dns" }}
+
+# Short alias for encrypted parameter
+mysql_encrypted_dns_alias: {{ awsEncryptedParamStore "application/mysql/encrypted_dns" }}

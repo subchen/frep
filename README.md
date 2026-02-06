@@ -231,6 +231,8 @@ More [funcs](https://github.com/subchen/frep/blob/master/func.go) added:
     - reSplit
 - awsSecret
 - awsParameterStore
+- awsEncryptedParameterStore
+- awsEncryptedParamStore
 
 Sample of nginx.conf.in
 
@@ -279,18 +281,13 @@ external_api_client: {{ awsSecret "application/external_api" "client_id" }}
 external_api_secret: {{ awsSecret "application/external_api" "secret_key" }}
 ```
 
-Sample using AWS Parameter Store, first of all take into account that in order to use the ssm functionality you need to have a proper AWS configuration in place and permissions enough to read parameters from AWS Parameter Store. More details of how to configure AWSCLI can be found at https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html 
-
-Once you have all the requirements just create a template like this one:
+Sample using AWS Parameter Store (SSM). Requires proper [AWS configuration](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html) and permissions.
 
 ```
 # application.conf
-mysql_host: {{ .mysql_host }}
-mysql_user: {{ .mysql_user }}
-mysql_pass: {{ awsSecret "application/mysql/password" }}
 mysql_dns: {{ awsParameterStore "application/mysql/dns" }}
+mysql_encrypted_dns: {{ awsEncryptedParameterStore "application/mysql/encrypted_dns" }}
+mysql_encrypted_dns_alias: {{ awsEncryptedParamStore "application/mysql/encrypted_dns" }}
 ```
-In above example `mysql_dns` will be filled as usual by using `frep` config file or environment variables but `mysql_pass` will be fetch straight from AWS Parameter Store by looking at `application/mysql/dns`
-
-SSM Limitation: You can get parameter from ParameterStore just in textplain.
+In the above example, `awsParameterStore` fetches a plaintext parameter, while `awsEncryptedParameterStore` (or its alias `awsEncryptedParamStore`) fetches and decrypts an encrypted parameter.
 

@@ -14,6 +14,7 @@ import (
 
 	"github.com/BurntSushi/toml"
 	"github.com/Masterminds/sprig"
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/go-yaml/yaml"
 	"github.com/ismferd/ssm/package/parameterstore"
 	"github.com/overdrive3000/secretsmanager"
@@ -58,6 +59,8 @@ func FuncMap(templateName string) template.FuncMap {
 	// Add function to get secrets from AWS Secrets Manager
 	f["awsSecret"] = getAWSSecret
 	f["awsParameterStore"] = getAWSParameterStore
+	f["awsEncryptedParameterStore"] = getAWSEncryptedParameterStore
+	f["awsEncryptedParamStore"] = getAWSEncryptedParameterStore
 
 	return f
 }
@@ -104,6 +107,30 @@ func getAWSParameterStore(parameter string) string {
 
 	spec := &parameterstore.ParemeterString{
 		Name: parameter,
+	}
+
+	p, err := c.GetParam(spec)
+	if err != nil {
+		if Strict {
+			panic(err)
+		}
+		return ""
+	}
+
+	return p
+}
+
+// getAWSEncryptedParameterStore return an encrypted parameter stored in AWS SSM Parameter Store.
+// function accepts as parameter a names.
+func getAWSEncryptedParameterStore(parameter string) string {
+
+	c := parameterstore.New(
+		&parameterstore.AWSConfig{},
+	)
+
+	spec := &parameterstore.ParemeterString{
+		Name:        parameter,
+		IsEncrypted: aws.Bool(true),
 	}
 
 	p, err := c.GetParam(spec)
